@@ -134,7 +134,7 @@ void ColoredCubeApp::initApp()
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
 
-	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,2),0,1);
+	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,1),0,1);
 	b1.setPosition(Vector3(0,0,0));
 
 	quad1.init(md3dDevice,1000, DIRT);
@@ -308,8 +308,16 @@ void ColoredCubeApp::drawScene()
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 	
 
-	if(b1.getPosition().y <= 10) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y+.5,b1.getVelocity().z));
-	else b1.setVelocity(Vector3(b1.getVelocity().x,0, b1.getVelocity().z));
+	if(b1.getPosition().z > 5) b1.setVelocity(-b1.getVelocity());
+	else if (b1.getPosition().z < -5) b1.setVelocity(-b1.getVelocity());
+
+	if(b1.getPosition().y < 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y + 0.3, b1.getVelocity().z));
+	else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.3, b1.getVelocity().z));
+	else if(b1.getPosition().y < 0)
+	{
+		b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
+	}
+	
 
 	mWVP = b1.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
