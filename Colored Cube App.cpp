@@ -123,7 +123,7 @@ void ColoredCubeApp::initApp()
 	//mBox.init(md3dDevice, 1.0f, WHITE);
 	//redBox.init(md3dDevice, 1.0f, RED);
 	line.init(md3dDevice, 10.0f, GREEN);
-	trumpWall.init(md3dDevice,1.0f,CHARCOAL_GREY);
+	trumpWall.init(md3dDevice,2.0f,CHARCOAL_GREY);
 
 	xLine.init(&line, Vector3(0,0,0), 5);
 	xLine.setPosition(Vector3(0,0,0));
@@ -137,7 +137,7 @@ void ColoredCubeApp::initApp()
 	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,2),0,1);
 	b1.setPosition(Vector3(0,0,0));
 
-	quad1.init(md3dDevice, 50, CYAN);
+	quad1.init(md3dDevice,1000, DIRT);
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
@@ -146,7 +146,7 @@ void ColoredCubeApp::initApp()
 	//gameObject2.init(&redBox, sqrt(2.0f), Vector3(4,0,0), Vector3(0,0,0), 0,1);
 	//gameObject3.init(&redBox, sqrt(2.0f), Vector3(-4,0,0), Vector3(0,0,0), 0,1);
 
-	trumpWallObj.init(&trumpWall, 0, Vector3(0,0,0), Vector3(0,0,0), 0,1);
+	trumpWallObj.init(&trumpWall, 0, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	buildFX();
 	buildVertexLayouts();

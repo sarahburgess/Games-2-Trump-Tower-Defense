@@ -25,14 +25,14 @@ void Wall::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 	// Create vertex buffer
     Vertex vertices[] =
     {
-		{D3DXVECTOR3(-5.0f, 0.0f, -1.0f), c},
-		{D3DXVECTOR3(-5.0f, 0.0f, 1.0f), c},
-		{D3DXVECTOR3(-5.0f, 5.0f, -1.0f), c},
-		{D3DXVECTOR3(-5.0f, 5.0f, 1.0f), c},
-		{D3DXVECTOR3(5.0f, 0.0f, +1.0f), c},
-		{D3DXVECTOR3(5.0f, 0.0f, -1.0f), c},
-		{D3DXVECTOR3(5.0f, 5.0f, 1.0f), c},
-		{D3DXVECTOR3(5.0f, 5.0f, -1.0f), c}
+		{D3DXVECTOR3(-10.0f, 0.0f, -1.0f), c},
+		{D3DXVECTOR3(-10.0f, 0.0f, 1.0f), c},
+		{D3DXVECTOR3(-10.0f, 5.0f, -1.0f), c},
+		{D3DXVECTOR3(-10.0f, 5.0f, 1.0f), c},
+		{D3DXVECTOR3(10.0f, 0.0f, +1.0f), c},
+		{D3DXVECTOR3(10.0f, 0.0f, -1.0f), c},
+		{D3DXVECTOR3(10.0f, 5.0f, 1.0f), c},
+		{D3DXVECTOR3(10.0f, 5.0f, -1.0f), c}
     };
 
 	// Scale the box.
@@ -99,14 +99,14 @@ void Wall::init(ID3D10Device* device, float scale)
 	// Create vertex buffer
     Vertex vertices[] =
     {
-		{D3DXVECTOR3(-5.0f, 0.0f, -1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(-5.0f, 0.0f, 1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(-5.0f, 5.0f, -1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(-5.0f, 5.0f, 1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(5.0f, 0.0f, +1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(5.0f, 0.0f, -1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(5.0f, 5.0f, 1.0f), CHARCOAL_GREY},
-		{D3DXVECTOR3(5.0f, 5.0f, -1.0f), CHARCOAL_GREY}
+		{D3DXVECTOR3(-10.0f, 0.0f, -1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(-10.0f, 0.0f, 1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(-10.0f, 5.0f, -1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(-10.0f, 5.0f, 1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(10.0f, 0.0f, +1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(10.0f, 0.0f, -1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(10.0f, 5.0f, 1.0f), CHARCOAL_GREY},
+		{D3DXVECTOR3(10.0f, 5.0f, -1.0f), CHARCOAL_GREY}
     };
 
 	// Scale the box.
