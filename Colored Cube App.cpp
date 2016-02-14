@@ -17,7 +17,9 @@
 #include <d3dx9math.h>
 #include "LineObject.h"
 #include "input.h"
+#include "Bernie.h"
 
+#include "BernieObject.h"
 
 
 class ColoredCubeApp : public D3DApp
@@ -39,8 +41,11 @@ private:
 	Quad quad1;
 	Line line;
 	Box mBox, redBox;
-	GameObject gameObject1, gameObject2, gameObject3, spinner;
+	//GameObject gameObject1, gameObject2, gameObject3, spinner;
 	LineObject xLine, yLine, zLine;
+
+	Bernie bern;
+	BernieObject b1;
 
 	Input *input;
 	
@@ -109,6 +114,8 @@ void ColoredCubeApp::initApp()
 
 	input->initialize(getMainWnd(), false); 
 	
+	bern.init(md3dDevice,1.0f, BLACK);
+
 	mBox.init(md3dDevice, 1.0f, WHITE);
 	redBox.init(md3dDevice, 1.0f, RED);
 	line.init(md3dDevice, 10.0f, GREEN);
@@ -122,16 +129,20 @@ void ColoredCubeApp::initApp()
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
 
-	quad1.init(md3dDevice, 10, CYAN);
+	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,2),0,1);
+	b1.setPosition(Vector3(0,0,0));
+
+	quad1.init(md3dDevice, 50, CYAN);
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
-	spinner.init(&redBox, 0, Vector3(0,4,0), Vector3(0,0,0), 0,1);
+	//spinner.init(&redBox, 0, Vector3(0,4,0), Vector3(0,0,0), 0,1);
 
-	gameObject1.init(&mBox, sqrt(2.0f), Vector3(0,0,0), Vector3(2,0,0), 0,1);
+	/*gameObject1.init(&mBox, sqrt(2.0f), Vector3(0,0,0), Vector3(2,0,0), 0,1);
 	gameObject2.init(&redBox, sqrt(2.0f), Vector3(4,0,0), Vector3(0,0,0), 0,1);
 	gameObject3.init(&redBox, sqrt(2.0f), Vector3(-4,0,0), Vector3(0,0,0), 0,1);
-
+*/
+	
 	buildFX();
 	buildVertexLayouts();
 
@@ -148,30 +159,22 @@ void ColoredCubeApp::onResize()
 void ColoredCubeApp::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
-	gameObject1.update(dt);
+	/*gameObject1.update(dt);
 	gameObject2.update(dt);
 	gameObject3.update(dt);
-	spinner.update(dt);
+	spinner.update(dt);*/
 	xLine.update(dt);
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
+	b1.update(dt);
 
 
-	if(input->anyKeyPressed())
-	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
-	}
-	if(input->isKeyDown(VK_CONTROL))
-	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
-	}
-
-// COLLISION DETECTION HERE
-	spinAmount += dt ;
-	if (ToRadian(spinAmount*40)>2*PI)
-		spinAmount = 0;
-
+//// COLLISION DETECTION HERE
+//	spinAmount += dt ;
+//	if (ToRadian(spinAmount*40)>2*PI)
+//		spinAmount = 0;
+//
 	// Build the view matrix.
 	D3DXVECTOR3 pos(25.0f,25.0f,25.0f);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
@@ -229,7 +232,7 @@ void ColoredCubeApp::drawScene()
     }
 
 	//draw the boxes
-	mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
+	/*mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	gameObject1.setMTech(mTech);
 	gameObject1.draw();
@@ -245,10 +248,10 @@ void ColoredCubeApp::drawScene()
 	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	gameObject3.setMTech(mTech);
-	gameObject3.draw();
+	gameObject3.draw();*/
      
 	//draw the spinning box
-	if (ToRadian(spinAmount*40) > PI)
+	/*if (ToRadian(spinAmount*40) > PI)
 		foo[0] = 1;
 	else
 		foo[0] = 0;
@@ -260,13 +263,22 @@ void ColoredCubeApp::drawScene()
 	mWVP = spinner.getWorldMatrix() *translate * spin  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	spinner.setMTech(mTech);
-	spinner.draw();
+	spinner.draw();*/
 
 
 	//period motion box
-	
+	/*
 	if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 	
+*/
+
+	if(b1.getPosition().y <= 10) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y+.5,b1.getVelocity().z));
+	else b1.setVelocity(Vector3(b1.getVelocity().x,0, b1.getVelocity().z));
+
+	mWVP = b1.getWorldMatrix()  *mView*mProj;
+	mfxWVPVar->SetMatrix((float*)&mWVP);
+	b1.setMTech(mTech);
+	b1.draw();
 
 
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.

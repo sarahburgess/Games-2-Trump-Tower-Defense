@@ -138,6 +138,8 @@ const D3DXCOLOR BLUE(0.0f, 0.0f, 1.0f, 1.0f);
 const D3DXCOLOR YELLOW(1.0f, 1.0f, 0.0f, 1.0f);
 const D3DXCOLOR CYAN(0.0f, 1.0f, 1.0f, 1.0f);
 const D3DXCOLOR MAGENTA(1.0f, 0.0f, 1.0f, 1.0f);
+const D3DXCOLOR SUITBLUE(0.1f, 0.1f, 0.48f, 1.0f);
+const D3DXCOLOR GREY(0.8f, 0.79f, 0.79f, 1.0f);
 
 const D3DXCOLOR BEACH_SAND(1.0f, 0.96f, 0.62f, 1.0f);
 const D3DXCOLOR LIGHT_YELLOW_GREEN(0.48f, 0.77f, 0.46f, 1.0f);
