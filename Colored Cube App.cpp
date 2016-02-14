@@ -41,6 +41,8 @@ private:
 	Box mBox, redBox;
 	GameObject gameObject1, gameObject2, gameObject3, spinner;
 	LineObject xLine, yLine, zLine;
+
+	Input *input;
 	
 
 	float spinAmount;
@@ -102,6 +104,10 @@ ColoredCubeApp::~ColoredCubeApp()
 void ColoredCubeApp::initApp()
 {
 	D3DApp::initApp();
+
+	input = new Input();
+
+	input->initialize(getMainWnd(), false); 
 	
 	mBox.init(md3dDevice, 1.0f, WHITE);
 	redBox.init(md3dDevice, 1.0f, RED);
@@ -272,14 +278,14 @@ void ColoredCubeApp::drawScene()
 void ColoredCubeApp::buildFX()
 {
 	DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
+/*#if defined( DEBUG ) || defined( _DEBUG )
     shaderFlags |= D3D10_SHADER_DEBUG;
 	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-#endif
+#endif*/
  
 	ID3D10Blob* compilationErrors = 0;
 	HRESULT hr = 0;
-	hr = D3DX10CreateEffectFromFile(L"color.fx", 0, 0, 
+	hr = D3DX10CreateEffectFromFile(L"../Games-2-Trump-Tower-Defense/color.fx", 0, 0, 
 		"fx_4_0", shaderFlags, 0, md3dDevice, 0, 0, &mFX, &compilationErrors, 0);
 	if(FAILED(hr))
 	{

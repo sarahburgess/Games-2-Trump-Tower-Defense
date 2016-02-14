@@ -395,9 +395,9 @@ void D3DApp::initDirect3D()
 	// Create the device.
 
 	UINT createDeviceFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)  
+/*#if defined(DEBUG) || defined(_DEBUG)  
     createDeviceFlags |= D3D10_CREATE_DEVICE_DEBUG;
-#endif
+#endif*/
 
 	HR( D3D10CreateDeviceAndSwapChain(
 			0,                 //default adapter
