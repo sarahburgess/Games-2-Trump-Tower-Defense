@@ -18,6 +18,8 @@
 #include "LineObject.h"
 #include "input.h"
 #include "Bernie.h"
+#include "Wall.h"
+#include "WallObject.h"
 
 #include "BernieObject.h"
 
@@ -40,9 +42,11 @@ private:
 private:
 	Quad quad1;
 	Line line;
-	Box mBox, redBox;
+	//Box mBox, redBox;
 	//GameObject gameObject1, gameObject2, gameObject3, spinner;
 	LineObject xLine, yLine, zLine;
+	Wall trumpWall;
+	WallObject trumpWallObj;
 
 	Bernie bern;
 	BernieObject b1;
@@ -116,9 +120,10 @@ void ColoredCubeApp::initApp()
 	
 	bern.init(md3dDevice,1.0f, BLACK);
 
-	mBox.init(md3dDevice, 1.0f, WHITE);
-	redBox.init(md3dDevice, 1.0f, RED);
+	//mBox.init(md3dDevice, 1.0f, WHITE);
+	//redBox.init(md3dDevice, 1.0f, RED);
 	line.init(md3dDevice, 10.0f, GREEN);
+	trumpWall.init(md3dDevice,1.0f,CHARCOAL_GREY);
 
 	xLine.init(&line, Vector3(0,0,0), 5);
 	xLine.setPosition(Vector3(0,0,0));
@@ -137,12 +142,12 @@ void ColoredCubeApp::initApp()
 
 	spinAmount = 0;
 	//spinner.init(&redBox, 0, Vector3(0,4,0), Vector3(0,0,0), 0,1);
+	//gameObject1.init(&mBox, sqrt(2.0f), Vector3(0,0,0), Vector3(2,0,0), 0,1);
+	//gameObject2.init(&redBox, sqrt(2.0f), Vector3(4,0,0), Vector3(0,0,0), 0,1);
+	//gameObject3.init(&redBox, sqrt(2.0f), Vector3(-4,0,0), Vector3(0,0,0), 0,1);
 
-	/*gameObject1.init(&mBox, sqrt(2.0f), Vector3(0,0,0), Vector3(2,0,0), 0,1);
-	gameObject2.init(&redBox, sqrt(2.0f), Vector3(4,0,0), Vector3(0,0,0), 0,1);
-	gameObject3.init(&redBox, sqrt(2.0f), Vector3(-4,0,0), Vector3(0,0,0), 0,1);
-*/
-	
+	trumpWallObj.init(&trumpWall, 0, Vector3(0,0,0), Vector3(0,0,0), 0,1);
+
 	buildFX();
 	buildVertexLayouts();
 
@@ -168,15 +173,40 @@ void ColoredCubeApp::updateScene(float dt)
 	zLine.update(dt);
 	quad1.update(dt);
 	b1.update(dt);
+	trumpWallObj.update(dt);
 
 
-//// COLLISION DETECTION HERE
-//	spinAmount += dt ;
-//	if (ToRadian(spinAmount*40)>2*PI)
-//		spinAmount = 0;
-//
+	/*if(input->anyKeyPressed())
+	{
+		gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
+	}
+	if(input->isKeyDown(VK_CONTROL))
+	{
+		gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
+	}*/
+
+	// Update angles based on input to orbit camera around box.
+	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
+	if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
+	if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
+	if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
+
+	// Restrict the angle mPhi.
+	if( mPhi < 0.1f )	mPhi = 0.1f;
+	if( mPhi > PI-0.1f)	mPhi = PI-0.1f;
+
+	// Convert Spherical to Cartesian coordinates: mPhi measured from +y
+	// and mTheta measured counterclockwise from -z.
+	float x =  35.0f*sinf(mPhi)*sinf(mTheta);
+	float z = -35.0f*sinf(mPhi)*cosf(mTheta);
+	float y =  35.0f*cosf(mPhi);
+
+// COLLISION DETECTION HERE
+	spinAmount += dt ;
+	if (ToRadian(spinAmount*40)>2*PI)
+		spinAmount = 0;
 	// Build the view matrix.
-	D3DXVECTOR3 pos(25.0f,25.0f,25.0f);
+	D3DXVECTOR3 pos(x,y,z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&mView, &pos, &target, &up);
@@ -232,45 +262,51 @@ void ColoredCubeApp::drawScene()
     }
 
 	//draw the boxes
-	/*mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
-	mfxWVPVar->SetMatrix((float*)&mWVP);
-	gameObject1.setMTech(mTech);
-	gameObject1.draw();
+	//mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
+	//mfxWVPVar->SetMatrix((float*)&mWVP);
+	//gameObject1.setMTech(mTech);
+	//gameObject1.draw();
 
-	mWVP = gameObject2.getWorldMatrix()*mView*mProj;
+	mWVP = trumpWallObj.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
-	foo[0] = 0;
-	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	gameObject2.setMTech(mTech);
-	gameObject2.draw();
-	mWVP = gameObject3.getWorldMatrix()*mView*mProj;
-	foo[0] = 0;
-	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	mfxWVPVar->SetMatrix((float*)&mWVP);
-	gameObject3.setMTech(mTech);
-	gameObject3.draw();*/
-     
-	//draw the spinning box
-	/*if (ToRadian(spinAmount*40) > PI)
-		foo[0] = 1;
-	else
-		foo[0] = 0;
-	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	Matrix spin;
-	RotateY(&spin, ToRadian(spinAmount*40));
-	Matrix translate;
-	Translate(&translate, 5, 0, 0);
-	mWVP = spinner.getWorldMatrix() *translate * spin  *mView*mProj;
-	mfxWVPVar->SetMatrix((float*)&mWVP);
-	spinner.setMTech(mTech);
-	spinner.draw();*/
+	trumpWallObj.setMTech(mTech);
+	trumpWallObj.draw();
+
+	//mWVP = gameObject2.getWorldMatrix()*mView*mProj;
+	//mfxWVPVar->SetMatrix((float*)&mWVP);
+	//foo[0] = 0;
+	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
+	//gameObject2.setMTech(mTech);
+	//gameObject2.draw();
 
 
-	//period motion box
-	/*
-	if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
+	//mWVP = gameObject3.getWorldMatrix()*mView*mProj;
+	//foo[0] = 0;
+	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
+	//mfxWVPVar->SetMatrix((float*)&mWVP);
+	//gameObject3.setMTech(mTech);
+	//gameObject3.draw();
+ //    
+	////draw the spinning box
+	//if (ToRadian(spinAmount*40) > PI)
+	//	foo[0] = 1;
+	//else
+	//	foo[0] = 0;
+	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
+	//Matrix spin;
+	//RotateY(&spin, ToRadian(spinAmount*40));
+	//Matrix translate;
+	//Translate(&translate, 5, 0, 0);
+	//mWVP = spinner.getWorldMatrix() *translate * spin  *mView*mProj;
+	//mfxWVPVar->SetMatrix((float*)&mWVP);
+	//spinner.setMTech(mTech);
+	//spinner.draw();
+
+
+	////period motion box
+	//
+	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 	
-*/
 
 	if(b1.getPosition().y <= 10) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y+.5,b1.getVelocity().z));
 	else b1.setVelocity(Vector3(b1.getVelocity().x,0, b1.getVelocity().z));
