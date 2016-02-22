@@ -20,6 +20,7 @@
 #include "Bernie.h"
 #include "Wall.h"
 #include "WallObject.h"
+#include "Crosshairs.h"
 
 #include "BernieObject.h"
 
@@ -41,13 +42,14 @@ private:
  
 private:
 	Quad quad1;
-	Line line;
+	Line line, line2;
+
 	//Box mBox, redBox;
 	//GameObject gameObject1, gameObject2, gameObject3, spinner;
 	LineObject xLine, yLine, zLine;
 	Wall trumpWall;
 	WallObject trumpWallObj;
-
+	Crosshairs crosshairObj;
 	Bernie bern;
 	BernieObject b1;
 
@@ -123,8 +125,8 @@ void ColoredCubeApp::initApp()
 	//mBox.init(md3dDevice, 1.0f, WHITE);
 	//redBox.init(md3dDevice, 1.0f, RED);
 	line.init(md3dDevice, 10.0f, GREEN);
+	line2.init(md3dDevice, .5f, RED);
 	trumpWall.init(md3dDevice,2.0f,CHARCOAL_GREY);
-
 	xLine.init(&line, Vector3(0,0,0), 5);
 	xLine.setPosition(Vector3(0,0,0));
 	yLine.init(&line, Vector3(0,0,0), 5);
@@ -133,6 +135,10 @@ void ColoredCubeApp::initApp()
 	zLine.init(&line, Vector3(0,0,0), 5);
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
+	crosshairObj.init(&line2, Vector3(0,0,0), .2);
+	crosshairObj.setPosition(Vector3(1,1,1));
+	crosshairObj.setSpeed(20);
+	//crosshairObj.setRotationX(ToRadian(90));
 
 	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,1),0,1);
 	b1.setPosition(Vector3(0,0,0));
@@ -174,6 +180,7 @@ void ColoredCubeApp::updateScene(float dt)
 	quad1.update(dt);
 	b1.update(dt);
 	trumpWallObj.update(dt);
+	crosshairObj.update(dt);
 
 
 	/*if(input->anyKeyPressed())
@@ -190,7 +197,21 @@ void ColoredCubeApp::updateScene(float dt)
 	if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
 	if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
 	if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
-
+	D3DXVECTOR3 dir(0, 0, 0);
+	if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+		dir.x = 1;
+	}
+	else if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
+		dir.x = -1;
+	}
+	else if(GetAsyncKeyState(VK_UP) & 0x8000) {
+		dir.y = 1;
+	}
+	else if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
+		dir.y = -1;
+	}
+	D3DXVec3Normalize(&dir, &dir);
+	crosshairObj.setVelocity(crosshairObj.getSpeed()*dir);
 	// Restrict the angle mPhi.
 	if( mPhi < 0.1f )	mPhi = 0.1f;
 	if( mPhi > PI-0.1f)	mPhi = PI-0.1f;
@@ -250,6 +271,11 @@ void ColoredCubeApp::drawScene()
 	zLine.setMTech(mTech);
 	zLine.draw();
 
+	mWVP = crosshairObj.getWorldMatrix() * mView*mProj;
+	mfxWVPVar->SetMatrix((float*)&mWVP);
+	crosshairObj.setMTech(mTech);
+	//crosshairObj.setPosition(D3DXVECTOR3(input->getMouseRawX(), input->getMouseRawY(), 0));
+	crosshairObj.draw();
 	//draw the quad using the "old" method
 	//compare how messy this is compared to the objectified geometry classes
 	mWVP = quad1.getWorld()*mView*mProj;
