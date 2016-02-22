@@ -134,18 +134,15 @@ void ColoredCubeApp::initApp()
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
 
+
 	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,1),0,1);
-	b1.setPosition(Vector3(0,0,0));
+	b1.setPosition(Vector3(0,0,-39));
 
 	quad1.init(md3dDevice,1000, DIRT);
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
-	//spinner.init(&redBox, 0, Vector3(0,4,0), Vector3(0,0,0), 0,1);
-	//gameObject1.init(&mBox, sqrt(2.0f), Vector3(0,0,0), Vector3(2,0,0), 0,1);
-	//gameObject2.init(&redBox, sqrt(2.0f), Vector3(4,0,0), Vector3(0,0,0), 0,1);
-	//gameObject3.init(&redBox, sqrt(2.0f), Vector3(-4,0,0), Vector3(0,0,0), 0,1);
-
+	
 	trumpWallObj.init(&trumpWall, 0, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	buildFX();
@@ -184,6 +181,8 @@ void ColoredCubeApp::updateScene(float dt)
 	{
 		gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
 	}*/
+
+	
 
 	// Update angles based on input to orbit camera around box.
 	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -308,11 +307,11 @@ void ColoredCubeApp::drawScene()
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 	
 
-	if(b1.getPosition().z > 5) b1.setVelocity(-b1.getVelocity());
-	else if (b1.getPosition().z < -5) b1.setVelocity(-b1.getVelocity());
+	if(b1.getPosition().z > 40) b1.setVelocity(-b1.getVelocity());
+	else if (b1.getPosition().z < -40) b1.setVelocity(-b1.getVelocity());
 
 	if(b1.getPosition().y < 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y + 0.3, b1.getVelocity().z));
-	else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.3, b1.getVelocity().z));
+	else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.5, b1.getVelocity().z));
 	else if(b1.getPosition().y < 0)
 	{
 		b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
