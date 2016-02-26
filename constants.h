@@ -13,7 +13,7 @@
 #define ToRadian D3DXToRadian
 #define ToDegree D3DXToDegree
 
-
+const int NUMBERN = 10;
 
 
 #endif

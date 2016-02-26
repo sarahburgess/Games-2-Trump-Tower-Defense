@@ -51,7 +51,7 @@ private:
 	WallObject trumpWallObj;
 	Crosshairs crosshairObj;
 	Bernie bern;
-	BernieObject b1;
+	BernieObject b1[NUMBERN];
 
 	Input *input;
 	
@@ -74,6 +74,7 @@ private:
 
 	float mTheta;
 	float mPhi;
+	float gameTimer;
 
 };
 
@@ -95,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 ColoredCubeApp::ColoredCubeApp(HINSTANCE hInstance)
 : D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
-  mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f)
+  mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f), gameTimer(0)
 {
 	D3DXMatrixIdentity(&mView);
 	D3DXMatrixIdentity(&mProj);
@@ -139,17 +140,23 @@ void ColoredCubeApp::initApp()
 	crosshairObj.setPosition(Vector3(1,1,1));
 	crosshairObj.setSpeed(20);
 	//crosshairObj.setRotationX(ToRadian(90));
-
-
-	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,1),0,1);
-	b1.setPosition(Vector3(0,0,-39));
+	for(int i = 0; i < NUMBERN; i++) {
+		b1[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		if(i%3 == 0)
+			b1[i].setPosition(Vector3(0,0,40));
+		else if(i%3 == 1)
+			b1[i].setPosition(Vector3(10, 0, 40));
+		else if(i%3 == 2) 
+			b1[i].setPosition(Vector3(-10, 0, 40));
+		b1[i].setInActive();
+	}
 
 	quad1.init(md3dDevice,1000, DIRT);
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
 	
-	trumpWallObj.init(&trumpWall, 0, Vector3(8,0,8), Vector3(0,0,0), 0,1);
+	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	buildFX();
 	buildVertexLayouts();
@@ -175,10 +182,22 @@ void ColoredCubeApp::updateScene(float dt)
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
-	b1.update(dt);
+	for(int i = 0; i <NUMBERN; i++) {
+		if(b1[i].getActiveState())
+			b1[i].update(dt);
+		else {
+			if(i%3 == 0)
+				b1[i].setPosition(Vector3(0,0,70));
+			else if(i%3 == 1)
+				b1[i].setPosition(Vector3(10, 0, 70));
+			else if(i%3 == 2) 
+				b1[i].setPosition(Vector3(-10, 0, 70));
+		}
+	}
 	trumpWallObj.update(dt);
 	crosshairObj.update(dt);
 
+	gameTimer += dt;
 
 	/*if(input->anyKeyPressed())
 	{
@@ -200,13 +219,13 @@ void ColoredCubeApp::updateScene(float dt)
 	if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
 		dir.x = 1;
 	}
-	else if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
+	if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
 		dir.x = -1;
 	}
-	else if(GetAsyncKeyState(VK_UP) & 0x8000) {
+	if(GetAsyncKeyState(VK_UP) & 0x8000) {
 		dir.y = 1;
 	}
-	else if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
+	if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
 		dir.y = -1;
 	}
 	D3DXVec3Normalize(&dir, &dir);
@@ -225,6 +244,14 @@ void ColoredCubeApp::updateScene(float dt)
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
+	for(int i = 0; i <NUMBERN; i++) {
+		if (b1[i].getPosition().z <= trumpWallObj.getPosition().z + 15)
+			b1[i].setVelocity(Vector3(0,0,0));
+		if (b1[i].getPosition().y != 0) {
+			b1[i].setPosition(Vector3(b1[i].getPosition().x, 0, b1[i].getPosition().z));
+			b1[i].setVelocity(Vector3(b1[i].getVelocity().x, 0, b1[i].getVelocity().z));
+	}
+	}
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
@@ -331,23 +358,23 @@ void ColoredCubeApp::drawScene()
 	////period motion box
 	//
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
-	
-
-	if(b1.getPosition().z > 40) b1.setVelocity(-b1.getVelocity());
-	else if (b1.getPosition().z < -40) b1.setVelocity(-b1.getVelocity());
-
-	if(b1.getPosition().y < 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y + 0.3, b1.getVelocity().z));
-	else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.5, b1.getVelocity().z));
-	else if(b1.getPosition().y < 0)
-	{
-		b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
+	//int randBern = rand() % NUMBERN;
+	if(gameTimer >= 3 && !b1[0].getActiveState()) {
+		b1[0].setActive();
+			b1[0].setPosition(Vector3(0,0,70));
 	}
-	
+	for(int i = 0; i< NUMBERN; i++) {
+		if(b1[i].getPosition().y < 0)
+		{
+			b1[i].setPosition(Vector3(b1[i].getPosition().x,0, b1[i].getPosition().z));
+		}
 
-	mWVP = b1.getWorldMatrix()  *mView*mProj;
-	mfxWVPVar->SetMatrix((float*)&mWVP);
-	b1.setMTech(mTech);
-	b1.draw();
+		mWVP = b1[i].getWorldMatrix()  *mView*mProj;
+		mfxWVPVar->SetMatrix((float*)&mWVP);
+		b1[i].setMTech(mTech);
+		if(b1[i].getActiveState())
+			b1[i].draw();
+	}
 
 
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.

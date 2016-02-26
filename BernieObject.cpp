@@ -4,7 +4,7 @@
 BernieObject::BernieObject()
 {
 	radius = 0;
-	speed = 0;
+	speed = 10;
 	active = true;
 	Identity(&world);
 }
@@ -48,11 +48,11 @@ void BernieObject::update(float dt)
 
 }
 
-bool BernieObject::collided(BernieObject *BernieObject)
+bool BernieObject::collided(GameObject *gameObject)
 {
-	Vector3 diff = position - BernieObject->getPosition();
+	Vector3 diff = position - gameObject->getPosition();
 	float length = D3DXVec3LengthSq(&diff);
-	float radii = radiusSquared + BernieObject->getRadiusSquare();
+	float radii = radiusSquared + gameObject->getRadiusSquare();
 	if (length <= radii)
 		return true;
 	return false;
