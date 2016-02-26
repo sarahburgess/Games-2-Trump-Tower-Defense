@@ -39,13 +39,17 @@ public:
 private:
 	void buildFX();
 	void buildVertexLayouts();
- 
+
 private:
 	Quad quad1;
 	Line line, line2;
 
 	//Box mBox, redBox;
 	//GameObject gameObject1, gameObject2, gameObject3, spinner;
+
+
+	Box bullet;
+	GameObject bullets[MAXBULL];
 	LineObject xLine, yLine, zLine;
 	Wall trumpWall;
 	WallObject trumpWallObj;
@@ -54,7 +58,7 @@ private:
 	BernieObject b1;
 
 	Input *input;
-	
+
 
 	float spinAmount;
 
@@ -75,6 +79,8 @@ private:
 	float mTheta;
 	float mPhi;
 
+	bool didShoot;
+
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -87,20 +93,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 	ColoredCubeApp theApp(hInstance);
-	
+
 	theApp.initApp();
 
 	return theApp.run();
 }
 
 ColoredCubeApp::ColoredCubeApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
-  mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f)
+	: D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
+	mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f)
 {
 	D3DXMatrixIdentity(&mView);
 	D3DXMatrixIdentity(&mProj);
 	D3DXMatrixIdentity(&mWVP); 
-	
+
 }
 
 ColoredCubeApp::~ColoredCubeApp()
@@ -119,12 +125,23 @@ void ColoredCubeApp::initApp()
 	input = new Input();
 
 	input->initialize(getMainWnd(), false); 
-	
-	bern.init(md3dDevice,1.0f, BLACK);
 
+	bern.init(md3dDevice,1.0f, BLACK);
+	bullet.init(md3dDevice,1.0f,BLACK);
+	for(int i = 0; i < MAXBULL; i++)
+	{
+
+		GameObject temp;
+		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),0,1);
+		temp.setInActive();
+
+		bullets[i] = temp;
+	}
 	//mBox.init(md3dDevice, 1.0f, WHITE);
 	//redBox.init(md3dDevice, 1.0f, RED);
-	line.init(md3dDevice, 10.0f, GREEN);
+
+	didShoot = false;
+	line.init(md3dDevice, .5f, GREEN);
 	line2.init(md3dDevice, .5f, RED);
 	trumpWall.init(md3dDevice,2.0f,CHARCOAL_GREY);
 	xLine.init(&line, Vector3(0,0,0), 5);
@@ -135,7 +152,7 @@ void ColoredCubeApp::initApp()
 	zLine.init(&line, Vector3(0,0,0), 5);
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
-	crosshairObj.init(&line2, Vector3(0,0,0), .2);
+	crosshairObj.init(&line2,&line ,Vector3(0,0,0), .4);
 	crosshairObj.setPosition(Vector3(1,1,1));
 	crosshairObj.setSpeed(20);
 	//crosshairObj.setRotationX(ToRadian(90));
@@ -148,7 +165,7 @@ void ColoredCubeApp::initApp()
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
-	
+
 	trumpWallObj.init(&trumpWall, 0, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	buildFX();
@@ -171,6 +188,33 @@ void ColoredCubeApp::updateScene(float dt)
 	gameObject2.update(dt);
 	gameObject3.update(dt);
 	spinner.update(dt);*/
+	if(GetAsyncKeyState('Q') & 0x8000) didShoot = true;
+	if(GetAsyncKeyState('Q') & 0x8000 && didShoot == true)
+	{
+		for(int i = 0; i < MAXBULL; i++)
+		{
+			if(bullets[i].getActiveState() == 0)
+			{
+				bullets[i].setActive();
+				bullets[i].setPosition(Vector3(0,7,0));
+				bullets[i].setVelocity(Vector3(0,0,10));
+				break;
+			}
+		}
+		didShoot = false;
+	}
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bullets[i].getActiveState() == 1)
+		{
+			bullets[i].update(dt);
+		}
+		if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
+		{
+			bullets[i].setInActive();
+		}
+	}
+
 	xLine.update(dt);
 	yLine.update(dt);
 	zLine.update(dt);
@@ -182,14 +226,14 @@ void ColoredCubeApp::updateScene(float dt)
 
 	/*if(input->anyKeyPressed())
 	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
+	gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
 	}
 	if(input->isKeyDown(VK_CONTROL))
 	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
+	gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
 	}*/
 
-	
+
 
 	// Update angles based on input to orbit camera around box.
 	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
@@ -221,7 +265,7 @@ void ColoredCubeApp::updateScene(float dt)
 	float z = -35.0f*sinf(mPhi)*cosf(mTheta);
 	float y =  35.0f*cosf(mPhi);
 
-// COLLISION DETECTION HERE
+	// COLLISION DETECTION HERE
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
@@ -242,7 +286,7 @@ void ColoredCubeApp::drawScene()
 	md3dDevice->OMSetDepthStencilState(0, 0);
 	float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
-    md3dDevice->IASetInputLayout(mVertexLayout);
+	md3dDevice->IASetInputLayout(mVertexLayout);
 
 	// set some variables for the shader
 	int foo[1];
@@ -259,7 +303,7 @@ void ColoredCubeApp::drawScene()
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	xLine.setMTech(mTech);
 	xLine.draw();
-	
+
 	mWVP = yLine.getWorldMatrix() *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	yLine.setMTech(mTech);
@@ -279,12 +323,12 @@ void ColoredCubeApp::drawScene()
 	//compare how messy this is compared to the objectified geometry classes
 	mWVP = quad1.getWorld()*mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
-    mTech->GetDesc( &techDesc );
+	mTech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        mTech->GetPassByIndex( p )->Apply(0);
-       quad1.draw();
-    }
+	{
+		mTech->GetPassByIndex( p )->Apply(0);
+		quad1.draw();
+	}
 
 	//draw the boxes
 	//mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
@@ -311,7 +355,7 @@ void ColoredCubeApp::drawScene()
 	//mfxWVPVar->SetMatrix((float*)&mWVP);
 	//gameObject3.setMTech(mTech);
 	//gameObject3.draw();
- //    
+	//    
 	////draw the spinning box
 	//if (ToRadian(spinAmount*40) > PI)
 	//	foo[0] = 1;
@@ -331,7 +375,7 @@ void ColoredCubeApp::drawScene()
 	////period motion box
 	//
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
-	
+
 
 	if(b1.getPosition().z > 40) b1.setVelocity(-b1.getVelocity());
 	else if (b1.getPosition().z < -40) b1.setVelocity(-b1.getVelocity());
@@ -342,14 +386,23 @@ void ColoredCubeApp::drawScene()
 	{
 		b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
 	}
-	
+
 
 	mWVP = b1.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	b1.setMTech(mTech);
 	b1.draw();
 
-
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bullets[i].getActiveState())
+		{
+			mWVP = bullets[i].getWorldMatrix()*mView*mProj;
+			mfxWVPVar->SetMatrix((float*)&mWVP);
+			bullets[i].setMTech(mTech);
+			bullets[i].draw();
+		}
+	}
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, BLACK);
@@ -359,11 +412,11 @@ void ColoredCubeApp::drawScene()
 void ColoredCubeApp::buildFX()
 {
 	DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
-/*#if defined( DEBUG ) || defined( _DEBUG )
-    shaderFlags |= D3D10_SHADER_DEBUG;
+	/*#if defined( DEBUG ) || defined( _DEBUG )
+	shaderFlags |= D3D10_SHADER_DEBUG;
 	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-#endif*/
- 
+	#endif*/
+
 	ID3D10Blob* compilationErrors = 0;
 	HRESULT hr = 0;
 	hr = D3DX10CreateEffectFromFile(L"../Games-2-Trump-Tower-Defense/color.fx", 0, 0, 
@@ -379,7 +432,7 @@ void ColoredCubeApp::buildFX()
 	} 
 
 	mTech = mFX->GetTechniqueByName("ColorTech");
-	
+
 	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
 	mfxFLIPVar = mFX->GetVariableByName("flip");
 
@@ -395,9 +448,8 @@ void ColoredCubeApp::buildVertexLayouts()
 	};
 
 	// Create the input layout
-    D3D10_PASS_DESC PassDesc;
-    mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
+	D3D10_PASS_DESC PassDesc;
+	mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
+	HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &mVertexLayout));
 }
- 

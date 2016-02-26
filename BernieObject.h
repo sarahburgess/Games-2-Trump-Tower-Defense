@@ -36,7 +36,7 @@ public:
 	bool getActiveState() {return active;}
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
 	bool collided(BernieObject *BernieObject);
-
+	void reduceHealth(int damage);
 
 private:
 	Bernie *bernie; 
@@ -49,6 +49,7 @@ private:
 	Matrix world;
 	float scale;
 	ID3D10EffectTechnique* mTech;
+	int health;
 };
 
 
