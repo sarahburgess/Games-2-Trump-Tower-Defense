@@ -49,7 +49,7 @@ private:
 	LineObject xLine, yLine, zLine;
 	Wall trumpWall;
 	WallObject trumpWallObj;
-	Crosshairs crosshairObj;
+	Crosshairs crosshairObjHor,crosshairObjVert;
 	Bernie bern;
 	BernieObject b1;
 
@@ -124,8 +124,8 @@ void ColoredCubeApp::initApp()
 
 	//mBox.init(md3dDevice, 1.0f, WHITE);
 	//redBox.init(md3dDevice, 1.0f, RED);
-	line.init(md3dDevice, 10.0f, GREEN);
-	line2.init(md3dDevice, .5f, RED);
+	line.init(md3dDevice, 1.0f, BLACK);
+	line2.init(md3dDevice, 1.0f, BLACK);
 	trumpWall.init(md3dDevice,2.0f,CHARCOAL_GREY);
 	xLine.init(&line, Vector3(0,0,0), 5);
 	xLine.setPosition(Vector3(0,0,0));
@@ -135,10 +135,16 @@ void ColoredCubeApp::initApp()
 	zLine.init(&line, Vector3(0,0,0), 5);
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
-	crosshairObj.init(&line2, Vector3(0,0,0), .2);
-	crosshairObj.setPosition(Vector3(1,1,1));
-	crosshairObj.setSpeed(20);
-	//crosshairObj.setRotationX(ToRadian(90));
+
+	crosshairObjHor.init(&line2, Vector3(10,10,10), 1);
+	crosshairObjHor.setPosition(Vector3(40,5+0.5,30+0.5));
+	crosshairObjHor.setSpeed(20);
+	crosshairObjHor.setRotationY(ToRadian(90));
+
+	crosshairObjVert.init(&line, Vector3(10,10,10), 1);
+	crosshairObjVert.setPosition(Vector3(40,5,30));
+	crosshairObjVert.setSpeed(20);
+	crosshairObjVert.setRotationZ(ToRadian(90));
 
 
 	b1.init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,1),0,1);
@@ -177,7 +183,8 @@ void ColoredCubeApp::updateScene(float dt)
 	quad1.update(dt);
 	b1.update(dt);
 	trumpWallObj.update(dt);
-	crosshairObj.update(dt);
+	crosshairObjHor.update(dt);
+	crosshairObjVert.update(dt);
 
 
 	/*if(input->anyKeyPressed())
@@ -191,35 +198,31 @@ void ColoredCubeApp::updateScene(float dt)
 
 	
 
-	// Update angles based on input to orbit camera around box.
-	if(GetAsyncKeyState('A') & 0x8000)	mTheta -= 2.0f*dt;
-	if(GetAsyncKeyState('D') & 0x8000)	mTheta += 2.0f*dt;
-	if(GetAsyncKeyState('W') & 0x8000)	mPhi -= 2.0f*dt;
-	if(GetAsyncKeyState('S') & 0x8000)	mPhi += 2.0f*dt;
 	D3DXVECTOR3 dir(0, 0, 0);
 	if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
-		dir.x = 1;
+		dir.z = 1;
 	}
-	else if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
-		dir.x = -1;
+	if(GetAsyncKeyState(VK_LEFT) & 0x8000) {
+		dir.z = -1;
 	}
-	else if(GetAsyncKeyState(VK_UP) & 0x8000) {
+	if(GetAsyncKeyState(VK_UP) & 0x8000) {
 		dir.y = 1;
 	}
-	else if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
+	if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
 		dir.y = -1;
 	}
 	D3DXVec3Normalize(&dir, &dir);
-	crosshairObj.setVelocity(crosshairObj.getSpeed()*dir);
+	crosshairObjHor.setVelocity(crosshairObjHor.getSpeed()*dir);
+	crosshairObjVert.setVelocity(crosshairObjVert.getSpeed()*dir);
 	// Restrict the angle mPhi.
 	if( mPhi < 0.1f )	mPhi = 0.1f;
 	if( mPhi > PI-0.1f)	mPhi = PI-0.1f;
 
 	// Convert Spherical to Cartesian coordinates: mPhi measured from +y
 	// and mTheta measured counterclockwise from -z.
-	float x =  35.0f*sinf(mPhi)*sinf(mTheta);
-	float z = -35.0f*sinf(mPhi)*cosf(mTheta);
-	float y =  35.0f*cosf(mPhi);
+	float x =  62.0f;
+	float z = 22.0f;
+	float y =  7.0f;
 
 // COLLISION DETECTION HERE
 	spinAmount += dt ;
@@ -227,7 +230,7 @@ void ColoredCubeApp::updateScene(float dt)
 		spinAmount = 0;
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
-	D3DXVECTOR3 target(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 target(0.0f, 0.0f, 25.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&mView, &pos, &target, &up);
 }
@@ -270,11 +273,16 @@ void ColoredCubeApp::drawScene()
 	zLine.setMTech(mTech);
 	zLine.draw();
 
-	mWVP = crosshairObj.getWorldMatrix() * mView*mProj;
+	mWVP = crosshairObjHor.getWorldMatrix() * mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
-	crosshairObj.setMTech(mTech);
-	//crosshairObj.setPosition(D3DXVECTOR3(input->getMouseRawX(), input->getMouseRawY(), 0));
-	crosshairObj.draw();
+	crosshairObjHor.setMTech(mTech);
+	crosshairObjHor.draw();
+
+	mWVP = crosshairObjVert.getWorldMatrix() * mView*mProj;
+	mfxWVPVar->SetMatrix((float*)&mWVP);
+	crosshairObjVert.setMTech(mTech);
+	crosshairObjVert.draw();
+
 	//draw the quad using the "old" method
 	//compare how messy this is compared to the objectified geometry classes
 	mWVP = quad1.getWorld()*mView*mProj;
