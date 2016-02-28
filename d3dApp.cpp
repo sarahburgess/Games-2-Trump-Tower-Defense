@@ -3,6 +3,7 @@
 //=======================================================================================
 
 #include "d3dApp.h"
+#include <ctime>
 #include <sstream>
 
 LRESULT CALLBACK
@@ -36,6 +37,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mMinimized  = false;
 	mMaximized  = false;
 	mResizing   = false;
+
+	srand(time(NULL));
 
 	mFrameStats = L"";
  

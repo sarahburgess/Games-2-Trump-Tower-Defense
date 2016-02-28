@@ -8,6 +8,12 @@
 //#include "d3dUtil.h"
 #include "d3dUtil.h"
 
+namespace BernieNameSpace
+{
+    const int MAX_SPEED = 15;
+	const short int MAX_HITS = 3;
+}
+
 
 class Bernie
 {
@@ -27,6 +33,8 @@ private:
 	ID3D10Device* md3dDevice;
 	ID3D10Buffer* mVB;
 	ID3D10Buffer* mIB;
+
+	short int currentHits;
 };
 
 

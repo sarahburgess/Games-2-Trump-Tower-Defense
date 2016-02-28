@@ -15,6 +15,12 @@ Wall::~Wall()
 	ReleaseCOM(mVB);
 	ReleaseCOM(mIB);
 }
+
+D3DXVECTOR3 Wall::getSize()
+{
+	return D3DXVECTOR3(20,5,2);
+}
+
 void Wall::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 {
 	md3dDevice = device;

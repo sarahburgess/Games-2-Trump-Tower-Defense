@@ -51,7 +51,7 @@ private:
 	WallObject trumpWallObj;
 	Crosshairs crosshairObjHor,crosshairObjVert;
 	Bernie bern;
-	BernieObject b1[NUMBERN];
+	BernieObject bernies[NUMBERN];
 
 	Input *input;
 	
@@ -136,24 +136,38 @@ void ColoredCubeApp::initApp()
 	zLine.init(&line, Vector3(0,0,0), 5);
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
+
+	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
+
 	for(int i = 0; i < NUMBERN; i++) {
-		b1[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		bernies[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
+		_RPT1(0, "random wall position %d", randPosition);
 		if(i%3 == 0)
-			b1[i].setPosition(Vector3(0,0,40));
+		{
+			bernies[i].setPosition(Vector3(randPosition,0,60));
+			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+		}
 		else if(i%3 == 1)
-			b1[i].setPosition(Vector3(10, 0, 40));
-		else if(i%3 == 2) 
-			b1[i].setPosition(Vector3(-10, 0, 40));
-		b1[i].setInActive();
+		{
+			bernies[i].setPosition(Vector3(randPosition, 0, 60));
+			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+		}
+		else if(i%3 == 2)
+		{
+			bernies[i].setPosition(Vector3(randPosition, 0, 60));
+			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+		}
+		bernies[i].setActive();
 	}
 
 	crosshairObjHor.init(&line2, Vector3(10,10,10), 1);
-	crosshairObjHor.setPosition(Vector3(40,5+0.5,30+0.5));
+	crosshairObjHor.setPosition(Vector3(50,6+0.5,22.5+0.5));
 	crosshairObjHor.setSpeed(20);
 	crosshairObjHor.setRotationY(ToRadian(90));
 
 	crosshairObjVert.init(&line, Vector3(10,10,10), 1);
-	crosshairObjVert.setPosition(Vector3(40,5,30));
+	crosshairObjVert.setPosition(Vector3(50,6,22.5));
 	crosshairObjVert.setSpeed(20);
 	crosshairObjVert.setRotationZ(ToRadian(90));
 
@@ -161,8 +175,6 @@ void ColoredCubeApp::initApp()
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
-	
-	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	buildFX();
 	buildVertexLayouts();
@@ -188,34 +200,17 @@ void ColoredCubeApp::updateScene(float dt)
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
+	/*_RPT1(0, "trunp wall size %d", (int)rand());
+	_RPT1(0, "trunp wall size %d", (int)rand());*/
 	for(int i = 0; i <NUMBERN; i++) {
-		if(b1[i].getActiveState())
-			b1[i].update(dt);
-		else {
-			if(i%3 == 0)
-				b1[i].setPosition(Vector3(0,0,70));
-			else if(i%3 == 1)
-				b1[i].setPosition(Vector3(10, 0, 70));
-			else if(i%3 == 2) 
-				b1[i].setPosition(Vector3(-10, 0, 70));
-		}
+		if(bernies[i].getPosition().z <= 15) bernies[i].setVelocity(Vector3(0,0,0));
+		bernies[i].update(dt);
 	}
 	trumpWallObj.update(dt);
 	crosshairObjHor.update(dt);
 	crosshairObjVert.update(dt);
 
 	gameTimer += dt;
-
-	/*if(input->anyKeyPressed())
-	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
-	}
-	if(input->isKeyDown(VK_CONTROL))
-	{
-		gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
-	}*/
-
-	
 
 	D3DXVECTOR3 dir(0, 0, 0);
 	if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
@@ -247,14 +242,14 @@ void ColoredCubeApp::updateScene(float dt)
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
-	for(int i = 0; i <NUMBERN; i++) {
+	/*for(int i = 0; i <NUMBERN; i++) {
 		if (b1[i].getPosition().z <= trumpWallObj.getPosition().z + 15)
 			b1[i].setVelocity(Vector3(0,0,0));
 		if (b1[i].getPosition().y != 0) {
 			b1[i].setPosition(Vector3(b1[i].getPosition().x, 0, b1[i].getPosition().z));
 			b1[i].setVelocity(Vector3(b1[i].getVelocity().x, 0, b1[i].getVelocity().z));
-	}
-	}
+		}
+	}*/
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 25.0f);
@@ -367,21 +362,12 @@ void ColoredCubeApp::drawScene()
 	//
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 	//int randBern = rand() % NUMBERN;
-	if(gameTimer >= 3 && !b1[0].getActiveState()) {
-		b1[0].setActive();
-			b1[0].setPosition(Vector3(0,0,70));
-	}
-	for(int i = 0; i< NUMBERN; i++) {
-		if(b1[i].getPosition().y < 0)
-		{
-			b1[i].setPosition(Vector3(b1[i].getPosition().x,0, b1[i].getPosition().z));
-		}
 
-		mWVP = b1[i].getWorldMatrix()  *mView*mProj;
+	for(int i = 0; i< NUMBERN; i++) {
+		mWVP = bernies[i].getWorldMatrix()  *mView*mProj;
 		mfxWVPVar->SetMatrix((float*)&mWVP);
-		b1[i].setMTech(mTech);
-		if(b1[i].getActiveState())
-			b1[i].draw();
+		bernies[i].setMTech(mTech);
+		bernies[i].draw();
 	}
 
 
