@@ -48,11 +48,11 @@ void WallObject::update(float dt)
 
 }
 
-bool WallObject::collided(WallObject *wallObject)
+bool WallObject::collided(GameObject *gameObject)
 {
-	Vector3 diff = position - wallObject->getPosition();
+	Vector3 diff = position - gameObject->getPosition();
 	float length = D3DXVec3LengthSq(&diff);
-	float radii = radiusSquared + wallObject->getRadiusSquare();
+	float radii = radiusSquared + gameObject->getRadiusSquare();
 	if (length <= radii)
 		return true;
 	return false;

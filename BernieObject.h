@@ -6,9 +6,10 @@
 #include "d3dUtil.h"
 
 #include "Bernie.h"
+#include "GameObject.h"
 #include "constants.h"
 
-class BernieObject
+class BernieObject :public GameObject
 {
 public:
 
@@ -35,8 +36,12 @@ public:
 	void setInActive() {active = false;}
 	bool getActiveState() {return active;}
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
+
 	bool collided(BernieObject *BernieObject);
 	void reduceHealth(int damage);
+
+	bool collided(GameObject *gameObject);
+
 
 private:
 	Bernie *bernie; 

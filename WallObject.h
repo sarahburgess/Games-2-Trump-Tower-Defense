@@ -6,9 +6,10 @@
 #include "d3dUtil.h"
 
 #include "Wall.h"
+#include "GameObject.h"
 #include "constants.h"
 
-class WallObject
+class WallObject: public GameObject
 {
 public:
 
@@ -35,7 +36,7 @@ public:
 	void setInActive() {active = false;}
 	bool getActiveState() {return active;}
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
-	bool collided(WallObject *gameObject);
+	bool collided(GameObject *gameObject);
 
 
 private:
