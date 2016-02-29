@@ -42,6 +42,10 @@ void BernieObject::init(Bernie *b, float r, Vector3 pos, Vector3 vel, float sp, 
 
 void BernieObject::update(float dt)
 {
+	if(health <= 0)
+	{
+		setInActive();
+	}
 	position += velocity*dt;
 	Identity(&world);
 	Translate(&world, position.x, position.y, position.z);
@@ -56,4 +60,9 @@ bool BernieObject::collided(GameObject *gameObject)
 	if (length <= radii)
 		return true;
 	return false;
+}
+
+void BernieObject::reduceHealth(int damage)
+{
+	health-=damage;
 }

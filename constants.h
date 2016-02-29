@@ -13,6 +13,7 @@
 #define ToRadian D3DXToRadian
 #define ToDegree D3DXToDegree
 
+const int MAXBULL = 30;
 const int NUMBERN = 10;
 
 
