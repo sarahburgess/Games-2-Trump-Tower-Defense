@@ -4,6 +4,7 @@
 
 #include "d3dApp.h"
 #include <sstream>
+#include <ctime>
 
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -36,6 +37,8 @@ D3DApp::D3DApp(HINSTANCE hInstance)
 	mMinimized  = false;
 	mMaximized  = false;
 	mResizing   = false;
+
+	srand(time(NULL));
 
 	mFrameStats = L"";
  

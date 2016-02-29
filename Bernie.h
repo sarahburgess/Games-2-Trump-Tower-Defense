@@ -9,6 +9,11 @@
 #include "d3dUtil.h"
 
 
+namespace BernieNameSpace 
+{
+	const int MAX_SPEED = 15;
+	const short int MAX_HITS = 3;
+}
 class Bernie
 {
 public:

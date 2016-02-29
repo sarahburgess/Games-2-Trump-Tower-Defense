@@ -38,6 +38,7 @@ void BernieObject::init(Bernie *b, float r, Vector3 pos, Vector3 vel, float sp, 
 	speed = sp;
 	scale = s;
 	radiusSquared = radius * radius;
+	health = 1;
 }
 
 void BernieObject::update(float dt)

@@ -173,3 +173,8 @@ void Wall::draw()
 	md3dDevice->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 	md3dDevice->DrawIndexed(mNumFaces*3, 0, 0);
 }
+
+D3DXVECTOR3 Wall::getSize()
+{
+	return D3DXVECTOR3(20,5,2);
+}

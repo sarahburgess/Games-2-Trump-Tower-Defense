@@ -242,14 +242,7 @@ void ColoredCubeApp::updateScene(float dt)
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
-	/*for(int i = 0; i <NUMBERN; i++) {
-		if (b1[i].getPosition().z <= trumpWallObj.getPosition().z + 15)
-			b1[i].setVelocity(Vector3(0,0,0));
-		if (b1[i].getPosition().y != 0) {
-			b1[i].setPosition(Vector3(b1[i].getPosition().x, 0, b1[i].getPosition().z));
-			b1[i].setVelocity(Vector3(b1[i].getVelocity().x, 0, b1[i].getVelocity().z));
-		}
-	}*/
+	
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 25.0f);
