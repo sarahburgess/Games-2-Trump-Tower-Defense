@@ -52,7 +52,8 @@ private:
 	Crosshairs crosshairObjHor,crosshairObjVert;
 	Bernie bern;
 	BernieObject bernies[NUMBERN];
-
+	Box bullet;
+	GameObject bullets[MAXBULL];
 	Input *input;
 	
 
@@ -68,6 +69,10 @@ private:
 	D3DXMATRIX mView;
 	D3DXMATRIX mProj;
 	D3DXMATRIX mWVP;
+
+	float shotTimer;
+
+	bool didShoot;
 
 	//my edits
 	D3DXMATRIX worldBox1, worldBox2;
@@ -175,9 +180,24 @@ void ColoredCubeApp::initApp()
 	quad1.setPosition(Vector3(0,-1.2,0));
 
 	spinAmount = 0;
+	shotTimer = 0;
+
+	bullet.init(md3dDevice,0.01f,BLACK);
+	for(int i = 0; i < MAXBULL; i++)
+	{
+
+		GameObject temp;
+		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),70,1);
+		temp.setInActive();
+
+		bullets[i] = temp;
+	}
+	didShoot = false;
 
 	buildFX();
 	buildVertexLayouts();
+
+
 
 }
 
@@ -200,8 +220,41 @@ void ColoredCubeApp::updateScene(float dt)
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
-	/*_RPT1(0, "trunp wall size %d", (int)rand());
-	_RPT1(0, "trunp wall size %d", (int)rand());*/
+
+	shotTimer+=dt;
+
+
+	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
+	{
+		for(int i = 0; i < MAXBULL; i++)
+		{
+			if(bullets[i].getActiveState() == 0)
+			{
+				bullets[i].setActive();
+				bullets[i].setPosition(Vector3(50,6,24));
+				float dist = 20;
+				Vector3 direct = Vector3(crosshairObjVert.getPosition().x-200,crosshairObjVert.getPosition().y,crosshairObjVert.getPosition().z) - bullets[i].getPosition();
+				D3DXVec3Normalize(&direct,&direct);
+				bullets[i].setVelocity(direct);
+				didShoot = false;
+				shotTimer = 0;
+				break;
+			}
+		}
+	}
+
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bullets[i].getActiveState() == 1)
+		{
+			bullets[i].update(dt);
+		}
+		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
+		{
+			bullets[i].setInActive();
+		}*/
+	}
+
 	for(int i = 0; i <NUMBERN; i++) {
 		if(bernies[i].getPosition().z <= 15) bernies[i].setVelocity(Vector3(0,0,0));
 		bernies[i].update(dt);
@@ -363,7 +416,16 @@ void ColoredCubeApp::drawScene()
 		bernies[i].draw();
 	}
 
-
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bullets[i].getActiveState())
+		{
+			mWVP = bullets[i].getWorldMatrix()*mView*mProj;
+			mfxWVPVar->SetMatrix((float*)&mWVP);
+			bullets[i].setMTech(mTech);
+			bullets[i].draw();
+		}
+	}
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT R = {5, 5, 0, 0};
 	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, BLACK);
