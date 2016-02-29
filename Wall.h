@@ -16,8 +16,6 @@ public:
 	Wall();
 	~Wall();
 
-	D3DXVECTOR3 getSize();
-
 	void init(ID3D10Device* device, float scale);
 	void init(ID3D10Device* device, float scale, D3DXCOLOR c);
 	void draw();

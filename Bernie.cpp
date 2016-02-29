@@ -18,8 +18,6 @@ Bernie::~Bernie()
 void Bernie::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 {
 	md3dDevice = device;
-
-	currentHits = 0;
  
 	mNumVertices = 24;
 	mNumFaces    = 36; // 2 per quad
