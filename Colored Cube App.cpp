@@ -21,7 +21,6 @@
 #include "Wall.h"
 #include "WallObject.h"
 #include "Crosshairs.h"
-
 #include "BernieObject.h"
 
 
@@ -44,10 +43,6 @@ private:
 	Quad quad1;
 	Line line, line2;
 
-	//Box mBox, redBox;
-	//GameObject gameObject1, gameObject2, gameObject3, spinner;
-
-
 	Box bullet;
 	GameObject bullets[MAXBULL];
 	LineObject xLine, yLine, zLine;
@@ -58,7 +53,6 @@ private:
 	BernieObject b1[NUMBERN];
 
 	Input *input;
-
 
 	float spinAmount;
 
@@ -79,6 +73,8 @@ private:
 	float mTheta;
 	float mPhi;
 	float gameTimer;
+
+	float shotTimer;
 
 	bool didShoot;
 
@@ -130,12 +126,12 @@ void ColoredCubeApp::initApp()
 	input->initialize(getMainWnd(), false); 
 
 	bern.init(md3dDevice,1.0f, BLACK);
-	bullet.init(md3dDevice,1.0f,BLACK);
+	bullet.init(md3dDevice,0.01f,BLACK);
 	for(int i = 0; i < MAXBULL; i++)
 	{
 
 		GameObject temp;
-		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),0,1);
+		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),70,1);
 		temp.setInActive();
 
 		bullets[i] = temp;
@@ -145,6 +141,8 @@ void ColoredCubeApp::initApp()
 
 
 	didShoot = false;
+	//line.init(md3dDevice, .5f, GREEN);
+	//line2.init(md3dDevice, .5f, RED);
 
 	line.init(md3dDevice, 1.0f, BLACK);
 	line2.init(md3dDevice, 1.0f, BLACK);
@@ -184,12 +182,8 @@ void ColoredCubeApp::initApp()
 	quad1.init(md3dDevice,1000, DIRT);
 	quad1.setPosition(Vector3(0,-1.2,0));
 
-	spinAmount = 0;
-
-	trumpWallObj.init(&trumpWall, 0, Vector3(8,0,8), Vector3(0,0,0), 0,1);
-	
 	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
-
+	shotTimer = 0;
 	buildFX();
 	buildVertexLayouts();
 
@@ -206,20 +200,23 @@ void ColoredCubeApp::onResize()
 void ColoredCubeApp::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
-	/*gameObject1.update(dt);
-	gameObject2.update(dt);
-	gameObject3.update(dt);
-	spinner.update(dt);*/
-	if(GetAsyncKeyState('Q') & 0x8000) didShoot = true;
-	if(GetAsyncKeyState('Q') & 0x8000 && didShoot == true)
+
+	shotTimer+=dt;
+
+	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
 	{
 		for(int i = 0; i < MAXBULL; i++)
 		{
 			if(bullets[i].getActiveState() == 0)
 			{
 				bullets[i].setActive();
-				bullets[i].setPosition(Vector3(0,7,0));
-				bullets[i].setVelocity(Vector3(0,0,10));
+				bullets[i].setPosition(Vector3(50,6,24));
+				float dist = 20;
+				Vector3 direct = Vector3(crosshairObjVert.getPosition().x-200,crosshairObjVert.getPosition().y,crosshairObjVert.getPosition().z) - bullets[i].getPosition();
+				D3DXVec3Normalize(&direct,&direct);
+				bullets[i].setVelocity(direct);
+				didShoot = false;
+				shotTimer = 0;
 				break;
 			}
 		}
@@ -231,16 +228,16 @@ void ColoredCubeApp::updateScene(float dt)
 		{
 			bullets[i].update(dt);
 		}
-		if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
+		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
 		{
 			bullets[i].setInActive();
-		}
+		}*/
 	}
-
 	xLine.update(dt);
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
+
 	for(int i = 0; i <NUMBERN; i++) {
 		if(b1[i].getActiveState())
 			b1[i].update(dt);
@@ -259,17 +256,6 @@ void ColoredCubeApp::updateScene(float dt)
 
 	gameTimer += dt;
 
-	/*if(input->anyKeyPressed())
-	{
-	gameObject1.setVelocity(D3DXVECTOR3(0,0,1));
-	}
-	if(input->isKeyDown(VK_CONTROL))
-	{
-	gameObject1.setVelocity(D3DXVECTOR3(0,-1,0));
-	}*/
-
-
-
 	D3DXVECTOR3 dir(0, 0, 0);
 	if(GetAsyncKeyState(VK_RIGHT) & 0x8000) {
 		dir.z = 1;
@@ -283,6 +269,7 @@ void ColoredCubeApp::updateScene(float dt)
 	if(GetAsyncKeyState(VK_DOWN) & 0x8000) {
 		dir.y = -1;
 	}
+
 	D3DXVec3Normalize(&dir, &dir);
 	crosshairObjHor.setVelocity(crosshairObjHor.getSpeed()*dir);
 	crosshairObjVert.setVelocity(crosshairObjVert.getSpeed()*dir);
@@ -421,15 +408,15 @@ void ColoredCubeApp::drawScene()
 	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
 
 
-	if(b1.getPosition().z > 40) b1.setVelocity(-b1.getVelocity());
-	else if (b1.getPosition().z < -40) b1.setVelocity(-b1.getVelocity());
+	//if(b1.getPosition().z > 40) b1.setVelocity(-b1.getVelocity());
+	//else if (b1.getPosition().z < -40) b1.setVelocity(-b1.getVelocity());
 
-	if(b1.getPosition().y < 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y + 0.3, b1.getVelocity().z));
-	else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.5, b1.getVelocity().z));
-	else if(b1.getPosition().y < 0)
-	{
-		b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
-	}
+	//if(b1.getPosition().y < 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y + 0.3, b1.getVelocity().z));
+	//else if(b1.getPosition().y >= 2) b1.setVelocity(Vector3(b1.getVelocity().x,b1.getVelocity().y - 0.5, b1.getVelocity().z));
+	//else if(b1.getPosition().y < 0)
+	//{
+	//	b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
+	//}
 
 	//int randBern = rand() % NUMBERN;
 	if(gameTimer >= 3 && !b1[0].getActiveState()) {
