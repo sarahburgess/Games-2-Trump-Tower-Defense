@@ -73,7 +73,6 @@ private:
 	float mTheta;
 	float mPhi;
 	float gameTimer;
-
 	float shotTimer;
 
 	bool didShoot;
@@ -100,7 +99,6 @@ ColoredCubeApp::ColoredCubeApp(HINSTANCE hInstance)
 
 : D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
   mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f), gameTimer(0)
-
 {
 	D3DXMatrixIdentity(&mView);
 	D3DXMatrixIdentity(&mProj);
@@ -147,6 +145,8 @@ void ColoredCubeApp::initApp()
 	line.init(md3dDevice, 1.0f, BLACK);
 	line2.init(md3dDevice, 1.0f, BLACK);
 
+	line.init(md3dDevice, 1.0f, BLACK);
+	line2.init(md3dDevice, 1.0f, BLACK);
 	trumpWall.init(md3dDevice,2.0f,CHARCOAL_GREY);
 	xLine.init(&line, Vector3(0,0,0), 5);
 	xLine.setPosition(Vector3(0,0,0));
@@ -157,7 +157,17 @@ void ColoredCubeApp::initApp()
 	zLine.setPosition(Vector3(0,0,0));
 	zLine.setRotationY(ToRadian(90));
 
-	
+	for(int i = 0; i < NUMBERN; i++) {
+		b1[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		if(i%3 == 0)
+			b1[i].setPosition(Vector3(0,0,40));
+		else if(i%3 == 1)
+			b1[i].setPosition(Vector3(10, 0, 40));
+		else if(i%3 == 2) 
+			b1[i].setPosition(Vector3(-10, 0, 40));
+		b1[i].setInActive();
+	}
+
 	for(int i = 0; i < NUMBERN; i++) {
 		b1[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
 		if(i%3 == 0)
@@ -237,6 +247,23 @@ void ColoredCubeApp::updateScene(float dt)
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
+	for(int i = 0; i <NUMBERN; i++) {
+		if(b1[i].getActiveState())
+			b1[i].update(dt);
+		else {
+			if(i%3 == 0)
+				b1[i].setPosition(Vector3(0,0,70));
+			else if(i%3 == 1)
+				b1[i].setPosition(Vector3(10, 0, 70));
+			else if(i%3 == 2) 
+				b1[i].setPosition(Vector3(-10, 0, 70));
+		}
+	}
+	trumpWallObj.update(dt);
+	crosshairObjHor.update(dt);
+	crosshairObjVert.update(dt);
+
+	gameTimer += dt;
 
 	for(int i = 0; i <NUMBERN; i++) {
 		if(b1[i].getActiveState())
@@ -417,7 +444,23 @@ void ColoredCubeApp::drawScene()
 	//{
 	//	b1.setPosition(Vector3(b1.getPosition().x,0, b1.getPosition().z));
 	//}
+	//int randBern = rand() % NUMBERN;
+	if(gameTimer >= 3 && !b1[0].getActiveState()) {
+		b1[0].setActive();
+			b1[0].setPosition(Vector3(0,0,70));
+	}
+	for(int i = 0; i< NUMBERN; i++) {
+		if(b1[i].getPosition().y < 0)
+		{
+			b1[i].setPosition(Vector3(b1[i].getPosition().x,0, b1[i].getPosition().z));
+		}
 
+		mWVP = b1[i].getWorldMatrix()  *mView*mProj;
+		mfxWVPVar->SetMatrix((float*)&mWVP);
+		b1[i].setMTech(mTech);
+		if(b1[i].getActiveState())
+			b1[i].draw();
+	}
 	//int randBern = rand() % NUMBERN;
 	if(gameTimer >= 3 && !b1[0].getActiveState()) {
 		b1[0].setActive();
