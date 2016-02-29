@@ -196,9 +196,6 @@ void ColoredCubeApp::initApp()
 
 	buildFX();
 	buildVertexLayouts();
-
-
-
 }
 
 void ColoredCubeApp::onResize()
@@ -212,17 +209,13 @@ void ColoredCubeApp::onResize()
 void ColoredCubeApp::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
-	/*gameObject1.update(dt);
-	gameObject2.update(dt);
-	gameObject3.update(dt);
-	spinner.update(dt);*/
+
 	xLine.update(dt);
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
 
 	shotTimer+=dt;
-
 
 	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
 	{
