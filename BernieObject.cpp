@@ -53,7 +53,7 @@ void BernieObject::update(float dt)
 	{
 		inactiveTime += dt;
 	}
-	position += velocity*dt*speed;
+	position += velocity*dt;
 	Identity(&world);
 	Translate(&world, position.x, position.y, position.z);
 

@@ -377,6 +377,12 @@ void ColoredCubeApp::updateScene(float dt)
 		}
 	}
 
+	for (int i = 0; i < MAXBULL; i++) {
+		if(bernieBullets[i].getActiveState()) {
+			bernieBullets[i].update(dt);
+		}
+	}
+
 	for(int i = 0; i < MAXBULL; i++)
 	{
 		if(bullets[i].getActiveState() == 1)
