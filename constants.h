@@ -28,4 +28,6 @@ const char RIFLE[] = "rifle";
 const char HIT[]   = "hit";
 const char BEEP[]  = "beep1";
 const char PAIN[]  = "pain";
+
+const char HYMN[]  = "hymn";
 #endif

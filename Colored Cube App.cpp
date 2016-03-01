@@ -201,12 +201,12 @@ void ColoredCubeApp::initApp()
 
 	crosshairObjHor.init(&line2, Vector3(10,10,10), 1);
 	crosshairObjHor.setPosition(Vector3(50,6+0.5,22.5+0.5));
-	crosshairObjHor.setSpeed(20);
+	crosshairObjHor.setSpeed(15);
 	crosshairObjHor.setRotationY(ToRadian(90));
 
 	crosshairObjVert.init(&line, Vector3(10,10,10), 1);
 	crosshairObjVert.setPosition(Vector3(50,6,22.5));
-	crosshairObjVert.setSpeed(20);
+	crosshairObjVert.setSpeed(15);
 	crosshairObjVert.setRotationZ(ToRadian(90));
 
 	quad1.init(md3dDevice,1000, DIRT);
@@ -243,6 +243,7 @@ void ColoredCubeApp::initApp()
 
 	buildFX();
 	buildVertexLayouts();
+	audio->playCue(HYMN);
 }
 
 void ColoredCubeApp::onResize()
@@ -346,6 +347,7 @@ void ColoredCubeApp::updateScene(float dt)
 				bernies[i].setInActive();
 				bernies[i].kill();
 				bernies[i].setHits(0);
+				audio->playCue(PAIN);
 				berniesKilled++;
 			}
 			if(bernies[i].didDie()&&(bernies[i].getActiveState()==false))//bernie died and is inactive
@@ -453,7 +455,7 @@ void ColoredCubeApp::updateScene(float dt)
 	Matrix lk;
 	D3DXMatrixIdentity(&lk);
 	D3DXMatrixLookAtLH(&lk, &pos, &target, &up);
-	if(GetAsyncKeyState(VK_SPACE) & 0x8000 && shotTimer >= .3)
+	if(GetAsyncKeyState(VK_SPACE) & 0x8000 && shotTimer >= .3 && gameActive)
 	{
 		for(int i = 0; i < MAXBULL; i++)
 		{
