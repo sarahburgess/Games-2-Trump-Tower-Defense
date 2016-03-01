@@ -10,7 +10,7 @@
 
 namespace WallNameSpace
 {
-	const int MAX_HITS = 10;
+	const int MAX_HITS = 50;
 }
 
 class Wall

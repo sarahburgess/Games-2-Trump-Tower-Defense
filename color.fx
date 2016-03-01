@@ -28,8 +28,13 @@ float4 PS(float4 posH  : SV_POSITION,
 {
     if(flip == 0)
        return color;
-	else
-	   return color.grba;
+	else if(flip == 1)
+	{
+		color.r = 255;
+		color.g = 0;
+		color.b = 0;
+	} 
+	return color;
 }
 
 technique10 ColorTech

@@ -17,7 +17,7 @@ const int MAXBULL = 30;
 const int NUMBERN = 10;
 const float MAX_SPAWN_TIME = 25.0f;
 
-const float MAX_LEVEL_TIME = 60.0f;
+const float MAX_LEVEL_TIME = 1000000.0f;
 
 const char WAVE_BANK[]  = "..\\Games-2-Trump-Tower-Defense\\audio\\Win\\wb.xwb";
 // SOUND_BANK must be location of .xsb file.
