@@ -8,6 +8,10 @@
 //#include "d3dUtil.h"
 #include "d3dUtil.h"
 
+namespace WallNameSpace
+{
+	const int MAX_HITS = 10;
+}
 
 class Wall
 {
@@ -20,7 +24,7 @@ public:
 	void init(ID3D10Device* device, float scale);
 	void init(ID3D10Device* device, float scale, D3DXCOLOR c);
 	void draw();
-
+	float scale;
 private:
 	DWORD mNumVertices;
 	DWORD mNumFaces;

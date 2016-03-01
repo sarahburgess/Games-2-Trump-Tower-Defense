@@ -36,16 +36,20 @@ void WallObject::init(Wall *w, float r, Vector3 pos, Vector3 vel, float sp, floa
 	position = pos;
 	velocity = vel;
 	speed = sp;
-	scale = s;
+	scale = w->scale;
 	radiusSquared = radius * radius;
+	hits = 0;
 }
 
 void WallObject::update(float dt)
 {
+	if(hits>=WallNameSpace::MAX_HITS)
+	{
+		active = false;
+	}
 	position += velocity*dt;
 	Identity(&world);
 	Translate(&world, position.x, position.y, position.z);
-
 }
 
 bool WallObject::collided(GameObject *gameObject)

@@ -16,6 +16,8 @@ public:
 	WallObject();
 	~WallObject();
 
+	Wall* getWall(){return wall;};
+
 	void init(Wall *w, float r, Vector3 pos, Vector3 vel, float sp, float s);
 	void draw();
 	void update(float dt);
@@ -38,6 +40,11 @@ public:
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
 	bool collided(GameObject *gameObject);
 
+	int getHits(){return hits;};
+
+	void wasHit(){hits++;}
+
+	void setHits(int h){hits = h;};
 
 private:
 	Wall *wall; 
@@ -49,6 +56,7 @@ private:
 	bool active;
 	Matrix world;
 	float scale;
+	int hits;
 	ID3D10EffectTechnique* mTech;
 };
 
