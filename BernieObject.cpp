@@ -38,14 +38,20 @@ void BernieObject::init(Bernie *b, float r, Vector3 pos, Vector3 vel, float sp, 
 	speed = sp;
 	scale = s;
 	radiusSquared = radius * radius;
-	health = 1;
+	stopPosition = 15;
+	hits = 0;
+	inactiveTime = 0.0f;
+	spawnTime = MAX_SPAWN_TIME;
 }
 
 void BernieObject::update(float dt)
 {
-	if(health <= 0)
+	if(active){
+		wasHit();//Temporary: to simulate bernie dying
+	}
+	else
 	{
-		setInActive();
+		inactiveTime += dt;
 	}
 	position += velocity*dt;
 	Identity(&world);
@@ -61,9 +67,4 @@ bool BernieObject::collided(GameObject *gameObject)
 	if (length <= radii)
 		return true;
 	return false;
-}
-
-void BernieObject::reduceHealth(int damage)
-{
-	health-=damage;
 }

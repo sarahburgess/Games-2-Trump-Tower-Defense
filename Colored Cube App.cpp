@@ -39,7 +39,7 @@ public:
 private:
 	void buildFX();
 	void buildVertexLayouts();
- 
+
 private:
 	Quad quad1;
 	Line line, line2;
@@ -54,7 +54,7 @@ private:
 	BernieObject bernies[NUMBERN];
 
 	Input *input;
-	
+
 
 	float spinAmount;
 
@@ -88,20 +88,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 	ColoredCubeApp theApp(hInstance);
-	
+
 	theApp.initApp();
 
 	return theApp.run();
 }
 
 ColoredCubeApp::ColoredCubeApp(HINSTANCE hInstance)
-: D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
-  mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f), gameTimer(0)
+	: D3DApp(hInstance), mFX(0), mTech(0), mVertexLayout(0),
+	mfxWVPVar(0), mTheta(0.0f), mPhi(PI*0.25f), gameTimer(0)
 {
 	D3DXMatrixIdentity(&mView);
 	D3DXMatrixIdentity(&mProj);
 	D3DXMatrixIdentity(&mWVP); 
-	
+
 }
 
 ColoredCubeApp::~ColoredCubeApp()
@@ -120,7 +120,7 @@ void ColoredCubeApp::initApp()
 	input = new Input();
 
 	input->initialize(getMainWnd(), false); 
-	
+
 	bern.init(md3dDevice,1.0f, BLACK);
 
 	//mBox.init(md3dDevice, 1.0f, WHITE);
@@ -140,25 +140,25 @@ void ColoredCubeApp::initApp()
 	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	for(int i = 0; i < NUMBERN; i++) {
-		bernies[i].init(&bern,sqrt(2.0f),Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		bernies[i].init(&bern,0,Vector3(0,0,0),Vector3(0,0,-3),0,1);
 		int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
-		_RPT1(0, "random wall position %d", randPosition);
-		if(i%3 == 0)
+		bernies[i].setStopPosition(15 + (rand()%30));
+		
+		bernies[i].setSpawnTime(MAX_SPAWN_TIME - (rand()%15));
+
+		bernies[i].setPosition(Vector3(randPosition,0,60));
+		
+
+		if(rand()%3==1)
 		{
-			bernies[i].setPosition(Vector3(randPosition,0,60));
+			bernies[i].setActive();
 			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
 		}
-		else if(i%3 == 1)
+		else
 		{
-			bernies[i].setPosition(Vector3(randPosition, 0, 60));
-			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+			bernies[i].setInActive();
+			bernies[i].setVelocity(Vector3(0,0,0));
 		}
-		else if(i%3 == 2)
-		{
-			bernies[i].setPosition(Vector3(randPosition, 0, 60));
-			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
-		}
-		bernies[i].setActive();
 	}
 
 	crosshairObjHor.init(&line2, Vector3(10,10,10), 1);
@@ -200,10 +200,37 @@ void ColoredCubeApp::updateScene(float dt)
 	yLine.update(dt);
 	zLine.update(dt);
 	quad1.update(dt);
-	/*_RPT1(0, "trunp wall size %d", (int)rand());
-	_RPT1(0, "trunp wall size %d", (int)rand());*/
+
 	for(int i = 0; i <NUMBERN; i++) {
-		if(bernies[i].getPosition().z <= 15) bernies[i].setVelocity(Vector3(0,0,0));
+		if(bernies[i].getActiveState()==false && bernies[i].getInactiveTime()>bernies[i].getSpawnTime())
+		{//if bernie is not active and his inactive time has surpassed the spawn time then ready to spawn bernie
+			bernies[i].setActive();
+			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+		}
+		if(bernies[i].getPosition().z <= bernies[i].getStopPosition())//if Bernie reaches his stop position then set velocity to 0
+		{
+			bernies[i].setVelocity(Vector3(0,0,0));
+		}
+		if(bernies[i].getHits() >= BernieNameSpace::MAX_HITS)//if Bernie's hit total surpasses his max hit total he is dead
+		{
+			bernies[i].setInActive();
+			bernies[i].kill();
+			bernies[i].setHits(0);
+		}
+		if(bernies[i].didDie()&&(bernies[i].getActiveState()==false))//bernie died and is inactive
+		{
+			//set to alive
+			bernies[i].setToAlive();
+			//give him a new random position
+			int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
+			//give him a new random stop point
+			bernies[i].setStopPosition(15 + (rand()%30));
+
+			bernies[i].setPosition(Vector3(randPosition,0,60));
+
+			bernies[i].setSpawnTime(MAX_SPAWN_TIME - (rand()%15));
+
+		}
 		bernies[i].update(dt);
 	}
 	trumpWallObj.update(dt);
@@ -238,11 +265,11 @@ void ColoredCubeApp::updateScene(float dt)
 	float z = 22.0f;
 	float y =  7.0f;
 
-// COLLISION DETECTION HERE
+	// COLLISION DETECTION HERE
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
-	
+
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
 	D3DXVECTOR3 target(0.0f, 0.0f, 25.0f);
@@ -260,7 +287,7 @@ void ColoredCubeApp::drawScene()
 	md3dDevice->OMSetDepthStencilState(0, 0);
 	float blendFactors[] = {0.0f, 0.0f, 0.0f, 0.0f};
 	md3dDevice->OMSetBlendState(0, blendFactors, 0xffffffff);
-    md3dDevice->IASetInputLayout(mVertexLayout);
+	md3dDevice->IASetInputLayout(mVertexLayout);
 
 	// set some variables for the shader
 	int foo[1];
@@ -277,7 +304,7 @@ void ColoredCubeApp::drawScene()
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	xLine.setMTech(mTech);
 	xLine.draw();
-	
+
 	mWVP = yLine.getWorldMatrix() *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	yLine.setMTech(mTech);
@@ -302,12 +329,12 @@ void ColoredCubeApp::drawScene()
 	//compare how messy this is compared to the objectified geometry classes
 	mWVP = quad1.getWorld()*mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
-    mTech->GetDesc( &techDesc );
+	mTech->GetDesc( &techDesc );
 	for(UINT p = 0; p < techDesc.Passes; ++p)
-    {
-        mTech->GetPassByIndex( p )->Apply(0);
-       quad1.draw();
-    }
+	{
+		mTech->GetPassByIndex( p )->Apply(0);
+		quad1.draw();
+	}
 
 	//draw the boxes
 	//mWVP = gameObject1.getWorldMatrix()  *mView*mProj;
@@ -334,7 +361,7 @@ void ColoredCubeApp::drawScene()
 	//mfxWVPVar->SetMatrix((float*)&mWVP);
 	//gameObject3.setMTech(mTech);
 	//gameObject3.draw();
- //    
+	//    
 	////draw the spinning box
 	//if (ToRadian(spinAmount*40) > PI)
 	//	foo[0] = 1;
@@ -360,7 +387,7 @@ void ColoredCubeApp::drawScene()
 		mWVP = bernies[i].getWorldMatrix()  *mView*mProj;
 		mfxWVPVar->SetMatrix((float*)&mWVP);
 		bernies[i].setMTech(mTech);
-		bernies[i].draw();
+		if(bernies[i].getActiveState()==true)bernies[i].draw();
 	}
 
 
@@ -373,11 +400,11 @@ void ColoredCubeApp::drawScene()
 void ColoredCubeApp::buildFX()
 {
 	DWORD shaderFlags = D3D10_SHADER_ENABLE_STRICTNESS;
-/*#if defined( DEBUG ) || defined( _DEBUG )
-    shaderFlags |= D3D10_SHADER_DEBUG;
+	/*#if defined( DEBUG ) || defined( _DEBUG )
+	shaderFlags |= D3D10_SHADER_DEBUG;
 	shaderFlags |= D3D10_SHADER_SKIP_OPTIMIZATION;
-#endif*/
- 
+	#endif*/
+
 	ID3D10Blob* compilationErrors = 0;
 	HRESULT hr = 0;
 	hr = D3DX10CreateEffectFromFile(L"../Games-2-Trump-Tower-Defense/color.fx", 0, 0, 
@@ -393,7 +420,7 @@ void ColoredCubeApp::buildFX()
 	} 
 
 	mTech = mFX->GetTechniqueByName("ColorTech");
-	
+
 	mfxWVPVar = mFX->GetVariableByName("gWVP")->AsMatrix();
 	mfxFLIPVar = mFX->GetVariableByName("flip");
 
@@ -409,8 +436,8 @@ void ColoredCubeApp::buildVertexLayouts()
 	};
 
 	// Create the input layout
-    D3D10_PASS_DESC PassDesc;
-    mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
-    HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
+	D3D10_PASS_DESC PassDesc;
+	mTech->GetPassByIndex(0)->GetDesc(&PassDesc);
+	HR(md3dDevice->CreateInputLayout(vertexDesc, 2, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &mVertexLayout));
 }

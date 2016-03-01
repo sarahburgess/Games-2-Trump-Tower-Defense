@@ -11,8 +11,8 @@
 
 namespace BernieNameSpace 
 {
-	const int MAX_SPEED = 15;
-	const short int MAX_HITS = 3;
+	const int MAX_SPEED = 12;
+	const short int MAX_HITS = 800000;
 }
 class Bernie
 {
