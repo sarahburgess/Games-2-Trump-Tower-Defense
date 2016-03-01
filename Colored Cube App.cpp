@@ -322,7 +322,7 @@ void ColoredCubeApp::updateScene(float dt)
 		}
 	}
 
-	if(berniesRemaining && gameActive)
+	if(berniesRemaining)
 	{
 		berniesRemaining = false;
 		for(int i = 0; i <NUMBERN; i++) {
