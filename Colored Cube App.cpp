@@ -21,7 +21,7 @@
 #include "Wall.h"
 #include "WallObject.h"
 #include "Crosshairs.h"
-
+#include "audio.h"
 #include "BernieObject.h"
 
 
@@ -57,7 +57,7 @@ private:
 	GameObject bullets[MAXBULL];
 	GameObject bernieBullets[MAXBULL];
 	Input *input;
-
+	Audio *audio;
 
 	float spinAmount;
 
@@ -129,6 +129,14 @@ void ColoredCubeApp::initApp()
 
 	input->initialize(getMainWnd(), false); 
 
+	audio = new Audio();
+    if (*WAVE_BANK != '\0' && *SOUND_BANK != '\0')  // if sound files defined
+    {
+		if (!audio->initialize()){
+			
+		}
+	}
+
 	bern.init(md3dDevice,1.0f, BLACK);
 
 	//mBox.init(md3dDevice, 1.0f, WHITE);
@@ -148,7 +156,7 @@ void ColoredCubeApp::initApp()
 	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	for(int i = 0; i < NUMBERN; i++) {
-		bernies[i].init(&bern,0,Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		bernies[i].init(&bern,20,Vector3(0,0,0),Vector3(0,0,-3),0,1);
 		int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
 		bernies[i].setStopPosition(15 + (rand()%30));
 		
@@ -185,7 +193,7 @@ void ColoredCubeApp::initApp()
 	spinAmount = 0;
 	shotTimer = 0;
 
-	bullet.init(md3dDevice,1.0f,BLACK);
+	bullet.init(md3dDevice,0.1f,BLACK);
 
 	for (int i = 0; i < NUMBERN; i++) {
 		bernieShotTimer[i] = 0;
@@ -226,7 +234,7 @@ void ColoredCubeApp::onResize()
 void ColoredCubeApp::updateScene(float dt)
 {
 	D3DApp::updateScene(dt);
-
+	audio->run();
 	xLine.update(dt);
 	yLine.update(dt);
 	zLine.update(dt);
@@ -248,6 +256,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3].setVelocity(direct);
 				bernieShotTimer[i] = 0;
+				audio->playCue(HIT);
 				//break;
 			}
 			else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
@@ -257,6 +266,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3 + 1].setVelocity(direct);
 				bernieShotTimer[i] = 0;
+				audio->playCue(HIT);
 				//break;
 			}
 			else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
@@ -266,6 +276,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3 + 2].setVelocity(direct);
 				bernieShotTimer[i] = 0;
+				audio->playCue(HIT);
 				//break;
 			}
 		}
@@ -340,6 +351,14 @@ void ColoredCubeApp::updateScene(float dt)
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
+	for(int i = 0; i < NUMBERN; i++) {
+		for(int j = 0; j < MAXBULL; j++) {
+			if(bernies[i].collided(&bullets[j])) {
+				bernies[i].setHits(bernies[i].getHits()+1);
+				audio->playCue(BEEP);
+			}
+		}
+	}
 
 	// Build the view matrix.
 	D3DXVECTOR3 pos(x,y,z);
@@ -356,11 +375,11 @@ void ColoredCubeApp::updateScene(float dt)
 		{
 			if(bullets[i].getActiveState() == 0)
 			{
-				
+				audio->playCue(RIFLE);
 				bullets[i].setActive();
-				Vector3 start = Vector3(x - 10, target.y,z);
+				Vector3 start = Vector3(x - 10, y,z);
 				bullets[i].setPosition(start);
-				Vector3 end = Vector3(-10,crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
+				Vector3 end = Vector3(x-20, crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z - .5);
 			
 				/*	
 				double xs = (target.x - (crosshairObjHor.getPosition().x-50)) * (target.x - (crosshairObjHor.getPosition().x - 50));
@@ -370,7 +389,7 @@ void ColoredCubeApp::updateScene(float dt)
 				//double d = hypot(hypot(target.x - (crosshairObjHor.getPosition().x-50),target.y - crosshairObjHor.getPosition().y)),target.z - crosshairObjHor.getPosition().z);
 				Vector3 direct = end - start;
 				D3DXVec3Normalize(&direct,&direct);
-				bullets[i].setVelocity(direct*10);
+				bullets[i].setVelocity(direct*100);
 				didShoot = false;
 				shotTimer = 0;
 				break;
