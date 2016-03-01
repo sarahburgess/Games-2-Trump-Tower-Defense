@@ -358,8 +358,8 @@ void ColoredCubeApp::updateScene(float dt)
 			{
 				bullets[i].setActive();
 				bullets[i].setPosition(target);
-				Vector3 start = target;
-				Vector3 end = Vector3((crosshairObjHor.getPosition().x-3),crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
+				Vector3 start = Vector3(0, target.y,target.z);
+				Vector3 end = Vector3(-10,crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
 			
 				/*	
 				double xs = (target.x - (crosshairObjHor.getPosition().x-50)) * (target.x - (crosshairObjHor.getPosition().x - 50));
@@ -367,7 +367,7 @@ void ColoredCubeApp::updateScene(float dt)
 				double zs = (target.z - crosshairObjHor.getPosition().z) * (target.x - crosshairObjHor.getPosition().z);
 */
 				//double d = hypot(hypot(target.x - (crosshairObjHor.getPosition().x-50),target.y - crosshairObjHor.getPosition().y)),target.z - crosshairObjHor.getPosition().z);
-				Vector3 direct = start - end;
+				Vector3 direct = end - start;
 				D3DXVec3Normalize(&direct,&direct);
 				bullets[i].setVelocity(direct*10);
 				didShoot = false;
