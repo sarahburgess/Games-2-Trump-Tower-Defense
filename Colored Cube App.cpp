@@ -21,6 +21,7 @@
 #include "Crosshairs.h"
 #include "audio.h"
 #include "BernieObject.h"
+#include <sstream>
 
 
 class ColoredCubeApp : public D3DApp
@@ -56,12 +57,19 @@ private:
 	GameObject bernieBullets[MAXBULL];
 	Input *input;
 
+	bool flash;
+
+	std::wstring berniesKilledText;
+
+	int berniesKilled;
+
 	float currentTime;
 	Audio *audio;
 
 	float spinAmount;
 
 	bool gameActive;
+
 
 	ID3D10Effect* mFX;
 	ID3D10EffectTechnique* mTech;
@@ -134,6 +142,10 @@ void ColoredCubeApp::initApp()
 	currentTime = 0.0;
 
 	berniesRemaining = true;
+
+	berniesKilled = 0;
+
+	flash = true;
 
 	gameActive = true;
 
@@ -336,6 +348,7 @@ void ColoredCubeApp::updateScene(float dt)
 				bernies[i].kill();
 				bernies[i].setHits(0);
 				audio->playCue(PAIN);
+				berniesKilled++;
 			}
 			if(bernies[i].didDie()&&(bernies[i].getActiveState()==false))//bernie died and is inactive
 			{
@@ -559,7 +572,30 @@ void ColoredCubeApp::drawScene()
 	mWVP = trumpWallObj.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	trumpWallObj.setMTech(mTech);
+	double hitPercentage = ((double)trumpWallObj.getHits()/(double)WallNameSpace::MAX_HITS) * 100.0;
+
+	foo[0] = 0;
+	if (hitPercentage >= 60.0 && hitPercentage < 75.0)
+		foo[0] = 1;
+	else if(hitPercentage > 75.0)
+	{
+		if(flash)
+		{
+			foo[0] = 1;
+			flash = false;
+		}
+		else
+		{
+			foo[0] = 0;
+			flash = true;
+		}
+	}
+	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
 	if(trumpWallObj.getActiveState()==true)trumpWallObj.draw();
+
+
+	foo[0] = 0;
+	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
 
 	//mWVP = gameObject2.getWorldMatrix()*mView*mProj;
 	//mfxWVPVar->SetMatrix((float*)&mWVP);
@@ -625,9 +661,15 @@ void ColoredCubeApp::drawScene()
 			bernieBullets[i].draw();
 		}
 	}
+
+	std::wostringstream outs;   
+	outs.precision(6);
+	outs << berniesKilled;
+	berniesKilledText = outs.str();
+
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
-	RECT R = {5, 5, 0, 0};
-	mFont->DrawText(0, mFrameStats.c_str(), -1, &R, DT_NOCLIP, BLACK);
+	RECT berniePos = {10, 0, 0, 0};
+	mFont->DrawText(0, berniesKilledText.c_str(), -1, &berniePos, DT_NOCLIP, BLACK);
 	mSwapChain->Present(0, 0);
 }
 

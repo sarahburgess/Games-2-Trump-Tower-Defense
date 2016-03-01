@@ -112,7 +112,7 @@ void D3DApp::initApp()
 	initDirect3D();
 
 	D3DX10_FONT_DESC fontDesc;
-	fontDesc.Height          = 24;
+	fontDesc.Height          = 50;
     fontDesc.Width           = 0;
     fontDesc.Weight          = 0;
     fontDesc.MipLevels       = 1;
