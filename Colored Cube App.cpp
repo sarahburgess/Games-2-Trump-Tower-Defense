@@ -243,6 +243,7 @@ void ColoredCubeApp::initApp()
 
 	buildFX();
 	buildVertexLayouts();
+	audio->playCue(HYMN);
 }
 
 void ColoredCubeApp::onResize()
