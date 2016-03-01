@@ -356,9 +356,10 @@ void ColoredCubeApp::updateScene(float dt)
 		{
 			if(bullets[i].getActiveState() == 0)
 			{
+				
 				bullets[i].setActive();
-				bullets[i].setPosition(target);
-				Vector3 start = Vector3(0, target.y,target.z);
+				Vector3 start = Vector3(x - 10, target.y,z);
+				bullets[i].setPosition(start);
 				Vector3 end = Vector3(-10,crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
 			
 				/*	
