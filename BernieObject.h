@@ -36,25 +36,45 @@ public:
 	void setInActive() {active = false;}
 	bool getActiveState() {return active;}
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
-
+	void setStopPosition(int sp){stopPosition = sp;};
+	int getStopPosition(){return stopPosition;}
 	bool collided(BernieObject *BernieObject);
-	void reduceHealth(int damage);
 
 	bool collided(GameObject *gameObject);
+
+	void wasHit(){hits++;}
+
+	void kill(){died = true;};
+
+	bool didDie(){return died;}
+	void setToAlive(){died = false;}
+
+	float getInactiveTime(){return inactiveTime;};
+	void setSpawnTime(float st){spawnTime = st;};
+
+	float getSpawnTime(){return spawnTime;};
+
+	float getHits(){return hits;};
+
+	void setHits(int h){hits = h;};
 
 
 private:
 	Bernie *bernie; 
 	Vector3 position;
 	Vector3 velocity;
+	float spawnTime;
 	float speed;
+	float inactiveTime;
+	int stopPosition;
 	float radius;
 	float radiusSquared;
 	bool active;
+	bool died;
 	Matrix world;
 	float scale;
 	ID3D10EffectTechnique* mTech;
-	int health;
+	int hits;
 };
 
 
