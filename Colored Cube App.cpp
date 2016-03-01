@@ -59,7 +59,7 @@ private:
 
 	bool flash;
 
-	std::wstring berniesKilledText;
+	std::wstring berniesKilledText, gameOverText;
 
 	int berniesKilled;
 
@@ -268,37 +268,40 @@ void ColoredCubeApp::updateScene(float dt)
 		bernieShotTimer[i]+=dt;
 	}
 
-	for(int i = 0; i < NUMBERN; i++) { //assigns each bernie 3 bullets that only shoot once he has come to a stop and fire to the wall
-		if(bernies[i].getActiveState() == 1 && bernieShotTimer[i] >= 3.5 && bernies[i].getVelocity() == Vector3(0,0,0) && bernies[i].getPosition().z <= trumpWallObj.getPosition().z + 40) {
-			if(bernieBullets[i*3].getActiveState() == 0) {
-				bernieBullets[i*3].setActive();
-				bernieBullets[i*3].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
-				float dist = 20;
-				Vector3 direct = Vector3(0,0,-5);
-				bernieBullets[i*3].setVelocity(direct);
-				bernieShotTimer[i] = 0;
-				audio->playCue(PAIN);
+	if (gameActive)
+	{
+		for(int i = 0; i < NUMBERN; i++) { //assigns each bernie 3 bullets that only shoot once he has come to a stop and fire to the wall
+			if(bernies[i].getActiveState() == 1 && bernieShotTimer[i] >= 3.5 && bernies[i].getVelocity() == Vector3(0,0,0) && bernies[i].getPosition().z <= trumpWallObj.getPosition().z + 40) {
+				if(bernieBullets[i*3].getActiveState() == 0) {
+					bernieBullets[i*3].setActive();
+					bernieBullets[i*3].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+					float dist = 20;
+					Vector3 direct = Vector3(0,0,-5);
+					bernieBullets[i*3].setVelocity(direct);
+					bernieShotTimer[i] = 0;
+					audio->playCue(PAIN);
+				}
+				else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
+					bernieBullets[i*3 + 1].setActive();
+					bernieBullets[i*3 + 1].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+					float dist = 20;
+					Vector3 direct = Vector3(0,0,-5);
+					bernieBullets[i*3 + 1].setVelocity(direct);
+					bernieShotTimer[i] = 0;
+					audio->playCue(PAIN);
+				}
+				else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
+					bernieBullets[i*3 + 2].setActive();
+					bernieBullets[i*3 + 2].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+					float dist = 20;
+					Vector3 direct = Vector3(0,0,-5);
+					bernieBullets[i*3 + 2].setVelocity(direct);
+					bernieShotTimer[i] = 0;
+					audio->playCue(PAIN);
+				}
 			}
-			else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
-				bernieBullets[i*3 + 1].setActive();
-				bernieBullets[i*3 + 1].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
-				float dist = 20;
-				Vector3 direct = Vector3(0,0,-5);
-				bernieBullets[i*3 + 1].setVelocity(direct);
-				bernieShotTimer[i] = 0;
-				audio->playCue(PAIN);
-			}
-			else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
-				bernieBullets[i*3 + 2].setActive();
-				bernieBullets[i*3 + 2].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
-				float dist = 20;
-				Vector3 direct = Vector3(0,0,-5);
-				bernieBullets[i*3 + 2].setVelocity(direct);
-				bernieShotTimer[i] = 0;
-				audio->playCue(PAIN);
-			}
-		}
 
+		} 
 	}
 
 	for(int i = 0; i < MAXBULL; i++)
@@ -316,13 +319,9 @@ void ColoredCubeApp::updateScene(float dt)
 				trumpWallObj.wasHit();
 			}
 		}
-		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
-		{
-			bullets[i].setInActive();
-		}*/
 	}
 
-	if(berniesRemaining)
+	if(berniesRemaining && gameActive)
 	{
 		berniesRemaining = false;
 		for(int i = 0; i <NUMBERN; i++) {
@@ -370,7 +369,7 @@ void ColoredCubeApp::updateScene(float dt)
 	crosshairObjHor.update(dt);
 	crosshairObjVert.update(dt);
 
-	if(currentTime >= MAX_LEVEL_TIME)
+	if(currentTime >= MAX_LEVEL_TIME || !trumpWallObj.getActiveState())
 	{
 		gameActive = false;
 	}
@@ -596,57 +595,25 @@ void ColoredCubeApp::drawScene()
 	foo[0] = 0;
 	mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
 
-	//mWVP = gameObject2.getWorldMatrix()*mView*mProj;
-	//mfxWVPVar->SetMatrix((float*)&mWVP);
-	//foo[0] = 0;
-	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	//gameObject2.setMTech(mTech);
-	//gameObject2.draw();
-
-
-	//mWVP = gameObject3.getWorldMatrix()*mView*mProj;
-	//foo[0] = 0;
-	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	//mfxWVPVar->SetMatrix((float*)&mWVP);
-	//gameObject3.setMTech(mTech);
-	//gameObject3.draw();
-	//    
-	////draw the spinning box
-	//if (ToRadian(spinAmount*40) > PI)
-	//	foo[0] = 1;
-	//else
-	//	foo[0] = 0;
-	//mfxFLIPVar->SetRawValue(&foo[0], 0, sizeof(int));
-	//Matrix spin;
-	//RotateY(&spin, ToRadian(spinAmount*40));
-	//Matrix translate;
-	//Translate(&translate, 5, 0, 0);
-	//mWVP = spinner.getWorldMatrix() *translate * spin  *mView*mProj;
-	//mfxWVPVar->SetMatrix((float*)&mWVP);
-	//spinner.setMTech(mTech);
-	//spinner.draw();
-
-
-	////period motion box
-	//
-	//if(gameObject1.collided(&gameObject2)||gameObject1.collided(&gameObject3)) gameObject1.setVelocity(-gameObject1.getVelocity());
-	//int randBern = rand() % NUMBERN;
-
-	for(int i = 0; i< NUMBERN; i++) {
-		mWVP = bernies[i].getWorldMatrix()  *mView*mProj;
-		mfxWVPVar->SetMatrix((float*)&mWVP);
-		bernies[i].setMTech(mTech);
-		if(bernies[i].getActiveState()==true)bernies[i].draw();
-	}
-
-	for(int i = 0; i < MAXBULL; i++)
+	if(gameActive)
 	{
-		if(bullets[i].getActiveState())
-		{
-			mWVP = bullets[i].getWorldMatrix()*mView*mProj;
+
+		for(int i = 0; i< NUMBERN; i++) {
+			mWVP = bernies[i].getWorldMatrix()  *mView*mProj;
 			mfxWVPVar->SetMatrix((float*)&mWVP);
-			bullets[i].setMTech(mTech);
-			bullets[i].draw();
+			bernies[i].setMTech(mTech);
+			if(bernies[i].getActiveState()==true)bernies[i].draw();
+		}
+
+		for(int i = 0; i < MAXBULL; i++)
+		{
+			if(bullets[i].getActiveState())
+			{
+				mWVP = bullets[i].getWorldMatrix()*mView*mProj;
+				mfxWVPVar->SetMatrix((float*)&mWVP);
+				bullets[i].setMTech(mTech);
+				bullets[i].draw();
+			}
 		}
 	}
 
@@ -666,9 +633,21 @@ void ColoredCubeApp::drawScene()
 	outs << berniesKilled;
 	berniesKilledText = outs.str();
 
+	std::wostringstream gouts;   
+	gouts.precision(6);
+	gouts << "Game Over";
+	gameOverText = gouts.str();
+
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
 	RECT berniePos = {10, 0, 0, 0};
 	mFont->DrawText(0, berniesKilledText.c_str(), -1, &berniePos, DT_NOCLIP, BLACK);
+
+	if(trumpWallObj.getActiveState() == false)
+	{
+		RECT gameOverPos = {mClientWidth/2, mClientHeight/2, mClientWidth, mClientHeight};
+		mFont->DrawText(0, gameOverText.c_str(), -1, &gameOverPos, DT_NOCLIP, BLACK);
+	}
+
 	mSwapChain->Present(0, 0);
 }
 
