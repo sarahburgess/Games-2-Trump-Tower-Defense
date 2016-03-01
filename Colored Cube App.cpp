@@ -280,7 +280,6 @@ void ColoredCubeApp::updateScene(float dt)
 					Vector3 direct = Vector3(0,0,-5);
 					bernieBullets[i*3].setVelocity(direct);
 					bernieShotTimer[i] = 0;
-					audio->playCue(PAIN);
 				}
 				else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
 					bernieBullets[i*3 + 1].setActive();
@@ -289,7 +288,6 @@ void ColoredCubeApp::updateScene(float dt)
 					Vector3 direct = Vector3(0,0,-5);
 					bernieBullets[i*3 + 1].setVelocity(direct);
 					bernieShotTimer[i] = 0;
-					audio->playCue(PAIN);
 				}
 				else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
 					bernieBullets[i*3 + 2].setActive();
@@ -298,7 +296,6 @@ void ColoredCubeApp::updateScene(float dt)
 					Vector3 direct = Vector3(0,0,-5);
 					bernieBullets[i*3 + 2].setVelocity(direct);
 					bernieShotTimer[i] = 0;
-					audio->playCue(PAIN);
 				}
 			}
 
@@ -318,6 +315,7 @@ void ColoredCubeApp::updateScene(float dt)
 			{
 				bernieBullets[i].setInActive();
 				trumpWallObj.wasHit();
+				audio->playCue(HIT);
 			}
 		}
 	}
