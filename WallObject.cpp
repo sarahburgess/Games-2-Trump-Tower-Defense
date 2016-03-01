@@ -45,7 +45,7 @@ void WallObject::update(float dt)
 {
 	if(hits>=WallNameSpace::MAX_HITS)
 	{
-		active = false;
+	 	active = false;
 	}
 	position += velocity*dt;
 	Identity(&world);
