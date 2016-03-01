@@ -166,7 +166,7 @@ void ColoredCubeApp::initApp()
 	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	for(int i = 0; i < NUMBERN; i++) {
-		bernies[i].init(&bern,5,Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		bernies[i].init(&bern,2,Vector3(0,0,0),Vector3(0,0,-3),0,1);
 		int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
 		bernies[i].setStopPosition(15 + (rand()%30));
 		
