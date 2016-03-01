@@ -455,7 +455,7 @@ void ColoredCubeApp::updateScene(float dt)
 	Matrix lk;
 	D3DXMatrixIdentity(&lk);
 	D3DXMatrixLookAtLH(&lk, &pos, &target, &up);
-	if(GetAsyncKeyState(VK_SPACE) & 0x8000 && shotTimer >= .3)
+	if(GetAsyncKeyState(VK_SPACE) & 0x8000 && shotTimer >= .3 && gameActive)
 	{
 		for(int i = 0; i < MAXBULL; i++)
 		{
