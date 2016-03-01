@@ -166,7 +166,7 @@ void ColoredCubeApp::initApp()
 	trumpWallObj.init(&trumpWall, 1, Vector3(8,0,8), Vector3(0,0,0), 0,1);
 
 	for(int i = 0; i < NUMBERN; i++) {
-		bernies[i].init(&bern,20,Vector3(0,0,0),Vector3(0,0,-3),0,1);
+		bernies[i].init(&bern,2,Vector3(0,0,0),Vector3(0,0,-3),0,1);
 		int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
 		bernies[i].setStopPosition(15 + (rand()%30));
 		
@@ -256,7 +256,6 @@ void ColoredCubeApp::updateScene(float dt)
 		bernieShotTimer[i]+=dt;
 	}
 
-	
 	for(int i = 0; i < NUMBERN; i++) { //assigns each bernie 3 bullets that only shoot once he has come to a stop and fire to the wall
 		if(bernies[i].getActiveState() == 1 && bernieShotTimer[i] >= 3.5 && bernies[i].getVelocity() == Vector3(0,0,0) && bernies[i].getPosition().z <= trumpWallObj.getPosition().z + 40) {
 			if(bernieBullets[i*3].getActiveState() == 0) {
@@ -266,8 +265,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3].setVelocity(direct);
 				bernieShotTimer[i] = 0;
-				audio->playCue(HIT);
-				//break;
+				audio->playCue(PAIN);
 			}
 			else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
 				bernieBullets[i*3 + 1].setActive();
@@ -276,8 +274,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3 + 1].setVelocity(direct);
 				bernieShotTimer[i] = 0;
-				audio->playCue(HIT);
-				//break;
+				audio->playCue(PAIN);
 			}
 			else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
 				bernieBullets[i*3 + 2].setActive();
@@ -286,8 +283,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 direct = Vector3(0,0,-5);
 				bernieBullets[i*3 + 2].setVelocity(direct);
 				bernieShotTimer[i] = 0;
-				audio->playCue(HIT);
-				//break;
+				audio->playCue(PAIN);
 			}
 		}
 
@@ -423,11 +419,15 @@ void ColoredCubeApp::updateScene(float dt)
 	spinAmount += dt ;
 	if (ToRadian(spinAmount*40)>2*PI)
 		spinAmount = 0;
+	bool collided = false;
 	for(int i = 0; i < NUMBERN; i++) {
 		for(int j = 0; j < MAXBULL; j++) {
-			if(bernies[i].collided(&bullets[j])) {
-				bernies[i].setHits(bernies[i].getHits()+1);
-				audio->playCue(BEEP);
+			if(bernies[i].collided(&bullets[j]) && collided == false) {
+				if(bullets[j].getActiveState()) {
+					audio->playCue(HIT);
+					bernies[i].wasHit();
+				}
+				bullets[j].setInActive();
 			}
 		}
 	}
@@ -453,6 +453,7 @@ void ColoredCubeApp::updateScene(float dt)
 				Vector3 start = Vector3(x - 10, y,z);
 				bullets[i].setPosition(start);
 				Vector3 end = Vector3(x-20, crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z - .5);
+
 
 				/*	
 				double xs = (target.x - (crosshairObjHor.getPosition().x-50)) * (target.x - (crosshairObjHor.getPosition().x - 50));

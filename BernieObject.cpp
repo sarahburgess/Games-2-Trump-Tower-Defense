@@ -46,10 +46,7 @@ void BernieObject::init(Bernie *b, float r, Vector3 pos, Vector3 vel, float sp, 
 
 void BernieObject::update(float dt)
 {
-	if(active){
-		wasHit();//Temporary: to simulate bernie dying
-	}
-	else
+	if(!active)
 	{
 		inactiveTime += dt;
 	}
