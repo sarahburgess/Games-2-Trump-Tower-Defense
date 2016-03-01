@@ -16,5 +16,6 @@
 const int MAXBULL = 30;
 const int NUMBERN = 10;
 const float MAX_SPAWN_TIME = 25.0f;
+const float MAX_LEVEL_TIME = 60.0f;
 
 #endif

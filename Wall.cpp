@@ -22,6 +22,8 @@ void Wall::init(ID3D10Device* device, float scale, D3DXCOLOR c)
 	mNumVertices = 8;
 	mNumFaces    = 12; // 2 per quad
 
+	this->scale = scale;
+
 	// Create vertex buffer
     Vertex vertices[] =
     {
@@ -95,6 +97,8 @@ void Wall::init(ID3D10Device* device, float scale)
  
 	mNumVertices = 8;
 	mNumFaces    = 12; // 2 per quad
+
+	this->scale = scale;
 
 	// Create vertex buffer
     Vertex vertices[] =

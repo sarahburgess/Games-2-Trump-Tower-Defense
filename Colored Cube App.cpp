@@ -17,11 +17,8 @@
 #include <d3dx9math.h>
 #include "LineObject.h"
 #include "input.h"
-#include "Bernie.h"
-#include "Wall.h"
 #include "WallObject.h"
 #include "Crosshairs.h"
-
 #include "BernieObject.h"
 
 
@@ -58,8 +55,11 @@ private:
 	GameObject bernieBullets[MAXBULL];
 	Input *input;
 
+	float currentTime;
 
 	float spinAmount;
+
+	bool gameActive;
 
 	ID3D10Effect* mFX;
 	ID3D10EffectTechnique* mTech;
@@ -76,6 +76,8 @@ private:
 	float bernieShotTimer[NUMBERN];
 
 	bool didShoot;
+
+	bool berniesRemaining;
 
 	//my edits
 	D3DXMATRIX worldBox1, worldBox2;
@@ -126,6 +128,12 @@ void ColoredCubeApp::initApp()
 	D3DApp::initApp();
 
 	input = new Input();
+
+	currentTime = 0.0;
+
+	berniesRemaining = true;
+
+	gameActive = true;
 
 	input->initialize(getMainWnd(), false); 
 
@@ -295,8 +303,11 @@ void ColoredCubeApp::updateScene(float dt)
 		if(bernieBullets[i].getActiveState() == 1) 
 		{
 			bernieBullets[i].update(dt);
-			if(bernieBullets[i].getPosition().z <= trumpWallObj.getPosition().z)
+			if(bernieBullets[i].getPosition().z <= trumpWallObj.getPosition().z + (trumpWallObj.getWall()->getSize().z * trumpWallObj.getScale()))
+			{
 				bernieBullets[i].setInActive();
+				trumpWallObj.wasHit();
+			}
 		}
 		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
 		{
@@ -304,41 +315,59 @@ void ColoredCubeApp::updateScene(float dt)
 		}*/
 	}
 
-	for(int i = 0; i <NUMBERN; i++) {
-		if(bernies[i].getActiveState()==false && bernies[i].getInactiveTime()>bernies[i].getSpawnTime())
-		{//if bernie is not active and his inactive time has surpassed the spawn time then ready to spawn bernie
-			bernies[i].setActive();
-			bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
-		}
-		if(bernies[i].getPosition().z <= bernies[i].getStopPosition())//if Bernie reaches his stop position then set velocity to 0
-		{
-			bernies[i].setVelocity(Vector3(0,0,0));
-		}
-		if(bernies[i].getHits() >= BernieNameSpace::MAX_HITS)//if Bernie's hit total surpasses his max hit total he is dead
-		{
-			bernies[i].setInActive();
-			bernies[i].kill();
-			bernies[i].setHits(0);
-		}
-		if(bernies[i].didDie()&&(bernies[i].getActiveState()==false))//bernie died and is inactive
-		{
-			//set to alive
-			bernies[i].setToAlive();
-			//give him a new random position
-			int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
-			//give him a new random stop point
-			bernies[i].setStopPosition(15 + (rand()%30));
+	if(berniesRemaining)
+	{
+		berniesRemaining = false;
+		for(int i = 0; i <NUMBERN; i++) {
+			if(bernies[i].getActiveState()==true)
+			{
+				berniesRemaining = true;
+			}
+			if(gameActive)
+			{
+				if(bernies[i].getActiveState()==false && bernies[i].getInactiveTime()>bernies[i].getSpawnTime())
+				{//if bernie is not active and his inactive time has surpassed the spawn time then ready to spawn bernie
+					bernies[i].setActive();
+					bernies[i].setVelocity(Vector3(bernies[i].getVelocity().x, bernies[i].getVelocity().y, -(int)rand()%BernieNameSpace::MAX_SPEED));
+				}
+			}
+			if(bernies[i].getPosition().z <= bernies[i].getStopPosition())//if Bernie reaches his stop position then set velocity to 0
+			{
+				bernies[i].setVelocity(Vector3(0,0,0));
+			}
+			if(bernies[i].getHits() >= BernieNameSpace::MAX_HITS)//if Bernie's hit total surpasses his max hit total he is dead
+			{
+				bernies[i].setInActive();
+				bernies[i].kill();
+				bernies[i].setHits(0);
+			}
+			if(bernies[i].didDie()&&(bernies[i].getActiveState()==false))//bernie died and is inactive
+			{
+				//set to alive
+				bernies[i].setToAlive();
+				//give him a new random position
+				int randPosition = (int)trumpWallObj.getPosition().x + (rand() % (int)trumpWall.getSize().x);
+				//give him a new random stop point
+				bernies[i].setStopPosition(15 + (rand()%30));
 
-			bernies[i].setPosition(Vector3(randPosition,0,60));
+				bernies[i].setPosition(Vector3(randPosition,0,60));
 
-			bernies[i].setSpawnTime(MAX_SPAWN_TIME - (rand()%15));
+				bernies[i].setSpawnTime(MAX_SPAWN_TIME - (rand()%15));
 
+			}
+			bernies[i].update(dt);
 		}
-		bernies[i].update(dt);
 	}
 	trumpWallObj.update(dt);
 	crosshairObjHor.update(dt);
 	crosshairObjVert.update(dt);
+
+	if(currentTime >= MAX_LEVEL_TIME)
+	{
+		gameActive = false;
+	}
+
+	currentTime += dt;
 
 	gameTimer += dt;
 
@@ -448,7 +477,7 @@ void ColoredCubeApp::drawScene()
 	mWVP = trumpWallObj.getWorldMatrix()  *mView*mProj;
 	mfxWVPVar->SetMatrix((float*)&mWVP);
 	trumpWallObj.setMTech(mTech);
-	trumpWallObj.draw();
+	if(trumpWallObj.getActiveState()==true)trumpWallObj.draw();
 
 	//mWVP = gameObject2.getWorldMatrix()*mView*mProj;
 	//mfxWVPVar->SetMatrix((float*)&mWVP);
