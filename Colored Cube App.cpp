@@ -182,12 +182,12 @@ void ColoredCubeApp::initApp()
 	spinAmount = 0;
 	shotTimer = 0;
 
-	bullet.init(md3dDevice,0.01f,BLACK);
+	bullet.init(md3dDevice,1.0f,BLACK);
 	for(int i = 0; i < MAXBULL; i++)
 	{
 
 		GameObject temp;
-		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),70,1);
+		temp.init(&bullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),700,1);
 		temp.setInActive();
 
 		bullets[i] = temp;
@@ -216,37 +216,6 @@ void ColoredCubeApp::updateScene(float dt)
 	quad1.update(dt);
 
 	shotTimer+=dt;
-
-	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
-	{
-		for(int i = 0; i < MAXBULL; i++)
-		{
-			if(bullets[i].getActiveState() == 0)
-			{
-				bullets[i].setActive();
-				bullets[i].setPosition(Vector3(50,6,24));
-				float dist = 20;
-				Vector3 direct = Vector3(crosshairObjVert.getPosition().x-200,crosshairObjVert.getPosition().y,crosshairObjVert.getPosition().z) - bullets[i].getPosition();
-				D3DXVec3Normalize(&direct,&direct);
-				bullets[i].setVelocity(direct);
-				didShoot = false;
-				shotTimer = 0;
-				break;
-			}
-		}
-	}
-
-	for(int i = 0; i < MAXBULL; i++)
-	{
-		if(bullets[i].getActiveState() == 1)
-		{
-			bullets[i].update(dt);
-		}
-		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
-		{
-			bullets[i].setInActive();
-		}*/
-	}
 
 	for(int i = 0; i <NUMBERN; i++) {
 		if(bernies[i].getPosition().z <= 15) bernies[i].setVelocity(Vector3(0,0,0));
@@ -294,6 +263,48 @@ void ColoredCubeApp::updateScene(float dt)
 	D3DXVECTOR3 target(0.0f, 0.0f, 25.0f);
 	D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
 	D3DXMatrixLookAtLH(&mView, &pos, &target, &up);
+
+	Matrix lk;
+	D3DXMatrixIdentity(&lk);
+	D3DXMatrixLookAtLH(&lk, &pos, &target, &up);
+	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
+	{
+		for(int i = 0; i < MAXBULL; i++)
+		{
+			if(bullets[i].getActiveState() == 0)
+			{
+				bullets[i].setActive();
+				bullets[i].setPosition(target);
+				Vector3 start = target;
+				Vector3 end = Vector3((crosshairObjHor.getPosition().x-3),crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
+			
+				/*	
+				double xs = (target.x - (crosshairObjHor.getPosition().x-50)) * (target.x - (crosshairObjHor.getPosition().x - 50));
+				double ys = (target.y - crosshairObjHor.getPosition().y) * (target.y - crosshairObjHor.getPosition().y);
+				double zs = (target.z - crosshairObjHor.getPosition().z) * (target.x - crosshairObjHor.getPosition().z);
+*/
+				//double d = hypot(hypot(target.x - (crosshairObjHor.getPosition().x-50),target.y - crosshairObjHor.getPosition().y)),target.z - crosshairObjHor.getPosition().z);
+				Vector3 direct = start - end;
+				D3DXVec3Normalize(&direct,&direct);
+				bullets[i].setVelocity(direct*10);
+				didShoot = false;
+				shotTimer = 0;
+				break;
+			}
+		}
+	}
+
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bullets[i].getActiveState() == 1)
+		{
+			bullets[i].update(dt);
+		}
+		if(bullets[i].getPosition().x <= -5)
+		{
+			bullets[i].setInActive();
+		}
+	}
 }
 
 void ColoredCubeApp::drawScene()
