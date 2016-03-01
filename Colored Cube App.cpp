@@ -53,7 +53,9 @@ private:
 	Bernie bern;
 	BernieObject bernies[NUMBERN];
 	Box bullet;
+	Box bernieBullet;
 	GameObject bullets[MAXBULL];
+	GameObject bernieBullets[MAXBULL];
 	Input *input;
 	
 
@@ -71,6 +73,7 @@ private:
 	D3DXMATRIX mWVP;
 
 	float shotTimer;
+	float bernieShotTimer[NUMBERN];
 
 	bool didShoot;
 
@@ -181,7 +184,9 @@ void ColoredCubeApp::initApp()
 
 	spinAmount = 0;
 	shotTimer = 0;
-
+	for (int i = 0; i < NUMBERN; i++) {
+		bernieShotTimer[i] = 0;
+	}
 	bullet.init(md3dDevice,0.01f,BLACK);
 	for(int i = 0; i < MAXBULL; i++)
 	{
@@ -191,6 +196,16 @@ void ColoredCubeApp::initApp()
 		temp.setInActive();
 
 		bullets[i] = temp;
+	}
+	bernieBullet.init(md3dDevice, 0.1f, RED);
+	for(int i = 0; i < MAXBULL; i++)
+	{
+
+		GameObject temp;
+		temp.init(&bernieBullet,1.0f,Vector3(0,0,0),Vector3(0,0,0),100,1);
+		temp.setInActive();
+
+		bernieBullets[i] = temp;
 	}
 	didShoot = false;
 
@@ -216,8 +231,11 @@ void ColoredCubeApp::updateScene(float dt)
 	quad1.update(dt);
 
 	shotTimer+=dt;
+	for(int i = 0; i < NUMBERN; i++) {
+		bernieShotTimer[i]+=dt;
+	}
 
-	if(GetAsyncKeyState('Q') & 0x8000 && shotTimer >= .3)
+	if(GetAsyncKeyState(VK_SPACE) & 0x8000 && shotTimer >= .3)
 	{
 		for(int i = 0; i < MAXBULL; i++)
 		{
@@ -235,12 +253,50 @@ void ColoredCubeApp::updateScene(float dt)
 			}
 		}
 	}
+	for(int i = 0; i < NUMBERN; i++) { //assigns each bernie 3 bullets that only shoot once he has come to a stop and fire to the wall
+		if(bernies[i].getActiveState() == 1 && bernieShotTimer[i] >= 3.5 && bernies[i].getVelocity() == Vector3(0,0,0) && bernies[i].getPosition().z <= trumpWallObj.getPosition().z + 40) {
+			if(bernieBullets[i*3].getActiveState() == 0) {
+				bernieBullets[i*3].setActive();
+				bernieBullets[i*3].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+				float dist = 20;
+				Vector3 direct = Vector3(0,0,-5);
+				bernieBullets[i*3].setVelocity(direct);
+				bernieShotTimer[i] = 0;
+				//break;
+			}
+			else if(bernieBullets[i*3 + 1].getActiveState() == 0) {
+				bernieBullets[i*3 + 1].setActive();
+				bernieBullets[i*3 + 1].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+				float dist = 20;
+				Vector3 direct = Vector3(0,0,-5);
+				bernieBullets[i*3 + 1].setVelocity(direct);
+				bernieShotTimer[i] = 0;
+				//break;
+			}
+			else if(bernieBullets[i*3 + 2].getActiveState() == 0) {
+				bernieBullets[i*3 + 2].setActive();
+				bernieBullets[i*3 + 2].setPosition(Vector3(bernies[i].getPosition().x,bernies[i].getPosition().y+1.3,bernies[i].getPosition().z));
+				float dist = 20;
+				Vector3 direct = Vector3(0,0,-5);
+				bernieBullets[i*3 + 2].setVelocity(direct);
+				bernieShotTimer[i] = 0;
+				//break;
+			}
+		}
+
+	}
 
 	for(int i = 0; i < MAXBULL; i++)
 	{
 		if(bullets[i].getActiveState() == 1)
 		{
 			bullets[i].update(dt);
+		}
+		if(bernieBullets[i].getActiveState() == 1) 
+		{
+			bernieBullets[i].update(dt);
+			if(bernieBullets[i].getPosition().z <= trumpWallObj.getPosition().z)
+				bernieBullets[i].setInActive();
 		}
 		/*if(bullets[i].getActiveState() == 1 && (bullets[i].getPosition().x > mClientWidth || bullets[i].getPosition().x < 0 || bullets[i].getPosition().y > mClientHeight || bullets[i].getPosition().y < 0))
 		{
@@ -417,6 +473,17 @@ void ColoredCubeApp::drawScene()
 			mfxWVPVar->SetMatrix((float*)&mWVP);
 			bullets[i].setMTech(mTech);
 			bullets[i].draw();
+		}
+	}
+
+	for(int i = 0; i < MAXBULL; i++)
+	{
+		if(bernieBullets[i].getActiveState())
+		{
+			mWVP = bernieBullets[i].getWorldMatrix()*mView*mProj;
+			mfxWVPVar->SetMatrix((float*)&mWVP);
+			bernieBullets[i].setMTech(mTech);
+			bernieBullets[i].draw();
 		}
 	}
 	// We specify DT_NOCLIP, so we do not care about width/height of the rect.
