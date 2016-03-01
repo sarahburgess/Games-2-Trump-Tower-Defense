@@ -37,13 +37,13 @@ public:
 	void setMTech(ID3D10EffectTechnique* m){ mTech = m;}
 	bool collided(GameObject *gameObject);
 
-
+	float radius;
 private:
 	Box *box; 
 	Vector3 position;
 	Vector3 velocity;
 	float speed;
-	float radius;
+	
 	float radiusSquared;
 	bool active;
 	Matrix world;

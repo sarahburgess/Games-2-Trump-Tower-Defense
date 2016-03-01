@@ -27,5 +27,5 @@ const char SOUND_BANK[] = "..\\Games-2-Trump-Tower-Defense\\audio\\Win\\sb.xsb";
 const char RIFLE[] = "rifle";
 const char HIT[]   = "hit";
 const char BEEP[]  = "beep1";
-
+const char PAIN[]  = "pain";
 #endif

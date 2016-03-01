@@ -384,8 +384,31 @@ void ColoredCubeApp::updateScene(float dt)
 		dir.y = -1;
 	}
 	D3DXVec3Normalize(&dir, &dir);
+	Vector3 lastPosVert = crosshairObjVert.getPosition();
+	Vector3 lastPosHor = crosshairObjHor.getPosition();
+
 	crosshairObjHor.setVelocity(crosshairObjHor.getSpeed()*dir);
 	crosshairObjVert.setVelocity(crosshairObjVert.getSpeed()*dir);
+	if(crosshairObjVert.getPosition().z <= 16.5)
+	{
+		crosshairObjHor.setPosition(Vector3(lastPosHor.x, lastPosHor.y, lastPosHor.z + .5));
+		crosshairObjVert.setPosition(Vector3(lastPosVert.x, lastPosVert.y, lastPosVert.z + .5));
+	}
+	if(crosshairObjVert.getPosition().z > 29)
+	{
+		crosshairObjHor.setPosition(Vector3(lastPosHor.x, lastPosHor.y, lastPosHor.z - .5));
+		crosshairObjVert.setPosition(Vector3(lastPosVert.x, lastPosVert.y, lastPosVert.z - .5));
+	}
+	if(crosshairObjVert.getPosition().y > 9.5)
+	{
+		crosshairObjHor.setPosition(Vector3(lastPosHor.x, lastPosHor.y- .5, lastPosHor.z));
+		crosshairObjVert.setPosition(Vector3(lastPosVert.x, lastPosVert.y- .5, lastPosVert.z));
+	}
+	if(crosshairObjVert.getPosition().y <.3)
+	{
+		crosshairObjHor.setPosition(Vector3(lastPosHor.x, lastPosHor.y + .5, lastPosHor.z));
+		crosshairObjVert.setPosition(Vector3(lastPosVert.x, lastPosVert.y + .5, lastPosVert.z));
+	}
 	// Restrict the angle mPhi.
 	if( mPhi < 0.1f )	mPhi = 0.1f;
 	if( mPhi > PI-0.1f)	mPhi = PI-0.1f;
@@ -426,16 +449,11 @@ void ColoredCubeApp::updateScene(float dt)
 			{
 				audio->playCue(RIFLE);
 				bullets[i].setActive();
-<<<<<<< HEAD
+
 				Vector3 start = Vector3(x - 10, y,z);
 				bullets[i].setPosition(start);
 				Vector3 end = Vector3(x-20, crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z - .5);
-=======
-				Vector3 start = Vector3(x - 10, target.y,z);
-				bullets[i].setPosition(start);
-				Vector3 end = Vector3(-10,crosshairObjHor.getPosition().y, crosshairObjHor.getPosition().z);
->>>>>>> e88cd46592b8ca338745b445f1c84962922c414e
-			
+
 				/*	
 				double xs = (target.x - (crosshairObjHor.getPosition().x-50)) * (target.x - (crosshairObjHor.getPosition().x - 50));
 				double ys = (target.y - crosshairObjHor.getPosition().y) * (target.y - crosshairObjHor.getPosition().y);
